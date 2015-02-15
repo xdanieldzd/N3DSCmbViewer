@@ -440,7 +440,15 @@ namespace N3DSCmbViewer.Cmb
                                     xw.WriteEndElement();
                                     */
                                     ushort[] idx = new ushort[prms.PrmChunk.NumberOfIndices];
-                                    Buffer.BlockCopy(cmbRoot.Indices, prms.PrmChunk.FirstIndex * sizeof(ushort), idx, 0, prms.PrmChunk.NumberOfIndices * sizeof(ushort));
+                                    if (prms.PrmChunk.DataType == Constants.DataTypes.GL_UNSIGNED_BYTE)
+                                    {
+                                        for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
+                                        {
+                                            idx[i] = cmbRoot.Indices[(prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize)];
+                                        }
+                                    }
+                                    else
+                                        Buffer.BlockCopy(cmbRoot.Indices, prms.PrmChunk.FirstIndex * sizeof(ushort), idx, 0, prms.PrmChunk.NumberOfIndices * sizeof(ushort));
 
                                     xw.WriteStartElement("p");
                                     {
