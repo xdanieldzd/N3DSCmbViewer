@@ -129,6 +129,10 @@ namespace N3DSCmbViewer
             foreach (TexChunk.Texture tex in modelFile.Root.TexChunk.Textures) tex.TexImage.Save(@"E:\- 3DS OoT Hacking -\collada\hf\" + tex.Name + "_" + tex.DataOffset.ToString("X") + ".png", System.Drawing.Imaging.ImageFormat.Png);
             */
             // TEMP TEMP
+
+            MessageBox.Show(
+                "This is a buggy test build; the main reason for it to exist is to let #zelda play around with the MM3D support.\n\nThere WILL be glitches, broken functionality, etc., etc.\n\nYou have been warned.",
+                "Hi #zelda", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private void glControl1_Render(object sender, EventArgs e)
