@@ -21,20 +21,20 @@ namespace N3DSCmbViewer.Cmb
 
         public enum Formats : uint
         {
-            ETC1 = 0x0000675A,
-            ETC1A4 = 0x0000675B,
-            RGBA8 = 0x14016752,
-            RGB8 = 0x14016754,
-            RGBA4 = 0x80336752,
-            RGBA5551 = 0x80346752,
-            RGB565 = 0x83636754,
-            LA4 = 0x67606758,
-            LA8 = 0x14016758,
-            L8 = 0x14016756, /* Not yet verified but -assumed- correct */
-            A8 = 0x14016757,
+            ETC1 = Constants.TextureFormats.GL_ETC1_RGB8_NATIVE_DMP,
+            ETC1A4 = Constants.TextureFormats.GL_ETC1_ALPHA_RGB8_A4_NATIVE_DMP,
+            RGBA8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_RGBA_NATIVE_DMP),
+            RGB8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_RGB_NATIVE_DMP),
+            RGBA4 = ((uint)Constants.DataTypes.GL_UNSIGNED_SHORT_4_4_4_4 << 16 | Constants.TextureFormats.GL_RGBA_NATIVE_DMP),
+            RGBA5551 = ((uint)Constants.DataTypes.GL_UNSIGNED_SHORT_5_5_5_1 << 16 | Constants.TextureFormats.GL_RGBA_NATIVE_DMP),
+            RGB565 = ((uint)Constants.DataTypes.GL_UNSIGNED_SHORT_5_6_5 << 16 | Constants.TextureFormats.GL_RGB_NATIVE_DMP),
+            LA4 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE_4_4_DMP << 16 | Constants.TextureFormats.GL_LUMINANCE_ALPHA_NATIVE_DMP),
+            LA8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_LUMINANCE_ALPHA_NATIVE_DMP),
+            A8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_ALPHA_NATIVE_DMP),
+            L8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_LUMINANCE_NATIVE_DMP),
 
-            /* Something 4bit; also not verified, no files w/ non-zero image data available atm... ALSO needs rewrite to support formats w/ <1byte per pixel */
-            Unknown4 = 0x67616757
+            /* Needs rewrite to support formats w/ <1byte per pixel */
+            L4 = ((uint)Constants.DataTypes.GL_UNSIGNED_4BITS_DMP << 16 | Constants.TextureFormats.GL_LUMINANCE_NATIVE_DMP)
         };
 
         public uint TextureCount { get; private set; }
@@ -385,7 +385,7 @@ namespace N3DSCmbViewer.Cmb
                         red = green = blue = 0xFF;
                         break;
 
-                    case Formats.Unknown4:
+                    case Formats.L4:
                         /* Temp, not yet working & probably wrong */
                         val = bytes[0];
                         red = green = blue = (((val >> 4) << 4) & 0xFF);

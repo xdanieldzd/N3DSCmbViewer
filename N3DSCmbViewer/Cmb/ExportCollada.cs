@@ -467,7 +467,7 @@ namespace N3DSCmbViewer.Cmb
             xw.WriteEndElement();
         }
 
-        private static float[] ConvertToFloatArray(Constants.DataTypes format, byte[] data, uint displacement, float scale)
+        private static float[] ConvertToFloatArray(Constants.DataTypes format, byte[] data, uint offset, float scale)
         {
             float[] dataOut = new float[2];
 
@@ -476,8 +476,8 @@ namespace N3DSCmbViewer.Cmb
                 case Constants.DataTypes.GL_BYTE:
                 case Constants.DataTypes.GL_UNSIGNED_BYTE:
                     {
-                        byte[] temp = new byte[(data.Length - displacement) / sizeof(byte)];
-                        Buffer.BlockCopy(data, (int)displacement, temp, 0, temp.Length * sizeof(byte));
+                        byte[] temp = new byte[(data.Length - offset) / sizeof(byte)];
+                        Buffer.BlockCopy(data, (int)offset, temp, 0, temp.Length * sizeof(byte));
                         dataOut = new float[temp.Length];
                         for (int i = 0; i < temp.Length; i++) dataOut[i] = Convert.ToSingle(temp[i]) * scale;
                     }
@@ -486,8 +486,8 @@ namespace N3DSCmbViewer.Cmb
                 case Constants.DataTypes.GL_SHORT:
                 case Constants.DataTypes.GL_UNSIGNED_SHORT:
                     {
-                        short[] temp = new short[(data.Length - displacement) / sizeof(short)];
-                        Buffer.BlockCopy(data, (int)displacement, temp, 0, temp.Length * sizeof(short));
+                        short[] temp = new short[(data.Length - offset) / sizeof(short)];
+                        Buffer.BlockCopy(data, (int)offset, temp, 0, temp.Length * sizeof(short));
                         dataOut = new float[temp.Length];
                         for (int i = 0; i < temp.Length; i++) dataOut[i] = Convert.ToSingle(temp[i]) * scale;
                     }
@@ -495,9 +495,9 @@ namespace N3DSCmbViewer.Cmb
 
                 case Constants.DataTypes.GL_FLOAT:
                     {
-                        int texCoordDataLength = (int)(data.Length - displacement);
+                        int texCoordDataLength = (int)(data.Length - offset);
                         dataOut = new float[texCoordDataLength / sizeof(float)];
-                        Buffer.BlockCopy(data, (int)displacement, dataOut, 0, texCoordDataLength);
+                        Buffer.BlockCopy(data, (int)offset, dataOut, 0, texCoordDataLength);
                         for (int i = 0; i < dataOut.Length; i++) dataOut[i] *= scale;
                     }
                     break;

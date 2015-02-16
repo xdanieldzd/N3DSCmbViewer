@@ -276,6 +276,13 @@ namespace N3DSCmbViewer.Cmb
 
                 if (Properties.Settings.Default.EnableTextures && Root.TexChunk.Textures.Length > 0)
                 {
+                    /* 1st texture stage */
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    if (mat.Stg1TextureID != -1)
+                        GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.Stg1TextureID].GLID);
+                    else
+                        GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
+
                     switch (mat.Stg1TextureMagFilter)
                     {
                         case Constants.TextureMinMagFilter.GL_NEAREST: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest); break;
@@ -296,12 +303,29 @@ namespace N3DSCmbViewer.Cmb
                             break;
                     }
 
-                    GL.ActiveTexture(TextureUnit.Texture0);
-                    if (mat.Stg1TextureID != -1)
-                        GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.Stg1TextureID].GLID);
-                    else
-                        GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
+                    // EXPERIMENTAL STUFF! -> wrap modes mess up stalfos; alphatest causes some missing textures...?
+                    if (false)
+                    {
+                        switch (mat.Stg1TextureWrapModeS)
+                        {
+                            case Constants.TextureWrapMode.GL_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat); break;
+                            case Constants.TextureWrapMode.GL_CLAMP_TO_EDGE: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge); break;
+                            case Constants.TextureWrapMode.GL_MIRRORED_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.MirroredRepeat); break;
+                        }
 
+                        switch (mat.Stg1TextureWrapModeT)
+                        {
+                            case Constants.TextureWrapMode.GL_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat); break;
+                            case Constants.TextureWrapMode.GL_CLAMP_TO_EDGE: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge); break;
+                            case Constants.TextureWrapMode.GL_MIRRORED_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.MirroredRepeat); break;
+                        }
+
+                        GL.AlphaFunc(AlphaFunction.Greater, 0.9f);
+                        GL.Enable(EnableCap.AlphaTest);
+                        GL.Enable(EnableCap.Blend);
+                    }
+
+                    /* 2nd texture stage (unimplemented) */
                     GL.ActiveTexture(TextureUnit.Texture1);
                     if (mat.MaybeStg2TextureID != -1)
                         GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.MaybeStg2TextureID].GLID);
@@ -310,28 +334,6 @@ namespace N3DSCmbViewer.Cmb
                 }
                 else
                     GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
-
-                // EXPERIMENTAL STUFF! -> wrap modes mess up stalfos; alphatest causes some missing textures...?
-                if (false)
-                {
-                    switch (mat.Stg1TextureWrapModeS)
-                    {
-                        case Constants.TextureWrapMode.GL_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat); break;
-                        case Constants.TextureWrapMode.GL_CLAMP_TO_EDGE: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge); break;
-                        case Constants.TextureWrapMode.GL_MIRRORED_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.MirroredRepeat); break;
-                    }
-
-                    switch (mat.Stg1TextureWrapModeT)
-                    {
-                        case Constants.TextureWrapMode.GL_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat); break;
-                        case Constants.TextureWrapMode.GL_CLAMP_TO_EDGE: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge); break;
-                        case Constants.TextureWrapMode.GL_MIRRORED_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.MirroredRepeat); break;
-                    }
-
-                    GL.AlphaFunc(AlphaFunction.Greater, 0.9f);
-                    GL.Enable(EnableCap.AlphaTest);
-                    GL.Enable(EnableCap.Blend);
-                }
 
                 foreach (PrmsChunk prms in sepd.PrmsChunks)
                 {
