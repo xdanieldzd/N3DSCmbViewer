@@ -87,6 +87,7 @@ namespace N3DSCmbViewer
             glControl1.VSync = Properties.Settings.Default.VSync;
             enableHUDToolStripMenuItem.Checked = Properties.Settings.Default.EnableHUD;
             disableAllShadersToolStripMenuItem.Checked = Properties.Settings.Default.DisableAllShaders;
+            enableSkeletalRenderingToolStripMenuItem.Checked = Properties.Settings.Default.EnableSkeletalStuff;
 
             iconImageListSmall = new ImageList() { ColorDepth = ColorDepth.Depth32Bit, ImageSize = new Size(16, 16) };
             iconImageListSmall.Images.Add("folderc", Win32.GetFolderIcon(Win32.IconSize.Small, Win32.FolderType.Closed));
@@ -403,6 +404,11 @@ namespace N3DSCmbViewer
         private void enableHUDToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.EnableHUD = ((sender as ToolStripMenuItem).Checked);
+        }
+
+        private void enableSkeletalRenderingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.EnableSkeletalStuff = ((sender as ToolStripMenuItem).Checked);
         }
 
         private void saveScreenshotToolStripMenuItem_Click(object sender, EventArgs e)

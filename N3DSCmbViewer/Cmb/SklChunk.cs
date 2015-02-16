@@ -27,7 +27,7 @@ namespace N3DSCmbViewer.Cmb
             Bones = new Bone[BoneCount];
             for (int i = 0; i < Bones.Length; i++) Bones[i] = new Bone(ChunkData, 0x10 + (i * (BaseCTRChunk.IsMajora3D ? Bone.DataSize_MM : Bone.DataSize_OoT)));
 
-            foreach (Bone bone in Bones.Where(x => x.ParentBoneID != ushort.MaxValue)) bone.ParentBone = Bones.FirstOrDefault(x => x.BoneID == bone.ParentBoneID);
+            foreach (Bone bone in Bones.Where(x => x.ParentBoneID != byte.MaxValue)) bone.ParentBone = Bones.FirstOrDefault(x => x.BoneID == bone.ParentBoneID);
         }
 
         public override string ToString()
@@ -49,8 +49,10 @@ namespace N3DSCmbViewer.Cmb
             public const int DataSize_OoT = 0x28;
             public const int DataSize_MM = 0x2C;
 
-            public ushort BoneID { get; private set; }
-            public ushort ParentBoneID { get; private set; }
+            public byte BoneID { get; private set; }
+            public byte Unknown1 { get; private set; }
+            public byte ParentBoneID { get; private set; }
+            public byte Unknown2 { get; private set; }
             public float ScaleX { get; set; }
             public float ScaleY { get; set; }
             public float ScaleZ { get; set; }
@@ -61,14 +63,16 @@ namespace N3DSCmbViewer.Cmb
             public float TranslationY { get; set; }
             public float TranslationZ { get; set; }
 
-            public float UnknownMM { get; set; }
+            public uint UnknownMM { get; set; }
 
             public Bone ParentBone { get; set; }
 
             public Bone(byte[] data, int offset)
             {
-                BoneID = BitConverter.ToUInt16(data, offset + 0x0);
-                ParentBoneID = BitConverter.ToUInt16(data, offset + 0x2);
+                BoneID = data[offset + 0x0];
+                Unknown1 = data[offset + 0x1];
+                ParentBoneID = data[offset + 0x2];
+                Unknown2 = data[offset + 0x3];
                 ScaleX = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x4)), 0);
                 ScaleY = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x8)), 0);
                 ScaleZ = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0xC)), 0);
@@ -80,7 +84,7 @@ namespace N3DSCmbViewer.Cmb
                 TranslationZ = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x24)), 0);
 
                 if (BaseCTRChunk.IsMajora3D)
-                    UnknownMM = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x28)), 0);
+                    UnknownMM = BitConverter.ToUInt32(data, offset + 0x28);
             }
 
             public override string ToString()

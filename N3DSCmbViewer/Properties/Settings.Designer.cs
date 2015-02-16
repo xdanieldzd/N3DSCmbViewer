@@ -118,5 +118,17 @@ namespace N3DSCmbViewer.Properties {
                 this["DisableAlpha"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EnableSkeletalStuff {
+            get {
+                return ((bool)(this["EnableSkeletalStuff"]));
+            }
+            set {
+                this["EnableSkeletalStuff"] = value;
+            }
+        }
     }
 }

@@ -36,6 +36,7 @@ namespace N3DSCmbViewer.Cmb
         /* Misc stuffs */
         int disableAlphaLocation;
         int enableLightingLocation;
+        int enableSkeletalStuffLocation;
         int emptyTexture;
 
         /* For wireframe overlay */
@@ -136,6 +137,7 @@ namespace N3DSCmbViewer.Cmb
 
             disableAlphaLocation = -1;
             enableLightingLocation = -1;
+            enableSkeletalStuffLocation = -1;
 
             skinningModeLocationOverlay = boneIdLocationOverlay = -1;
             vertBoneSamplerLocationOverlay = -1;
@@ -193,6 +195,7 @@ namespace N3DSCmbViewer.Cmb
                 normalScaleLocation = GL.GetUniformLocation(program, "normalScale");
                 disableAlphaLocation = GL.GetUniformLocation(program, "disableAlpha");
                 enableLightingLocation = GL.GetUniformLocation(program, "enableLighting");
+                enableSkeletalStuffLocation = GL.GetUniformLocation(program, "enableSkeletalStuff");
 
                 Aglex.GLSL.CreateProgram(ref programOverlay, fragmentObjectOverlay, vertexObject);
                 vertexScaleLocationOverlay = GL.GetUniformLocation(programOverlay, "vertexScale");
@@ -361,6 +364,7 @@ namespace N3DSCmbViewer.Cmb
 
                     GL.Uniform1(disableAlphaLocation, Convert.ToInt16(Properties.Settings.Default.DisableAlpha));
                     GL.Uniform1(enableLightingLocation, Convert.ToInt16(Properties.Settings.Default.EnableLighting));
+                    GL.Uniform1(enableSkeletalStuffLocation, Convert.ToInt16(Properties.Settings.Default.EnableSkeletalStuff));
 
                     SetupNormalArray(sepd);
                     SetupColorArray(sepd);

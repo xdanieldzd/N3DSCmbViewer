@@ -23,6 +23,7 @@ uniform float normalScale;
 
 /* Settings */
 uniform bool enableLighting;
+uniform bool enableSkeletalStuff;
 
 void main()
 {
@@ -38,26 +39,29 @@ void main()
     }
 
     /* Bone workings */
-    mat4 tempMatrix = mat4(0.0);
+    mat4 tempMatrix = mat4(1.0);
     int lookupId = int(texelFetchBuffer(vertBoneSampler, gl_VertexID).r);
 
-    if(skinningMode == 0)
+    if(enableSkeletalStuff)
     {
-        /* Single bone */
-        tempMatrix = boneMatrix[boneId];
+        if(skinningMode == 0)
+        {
+            /* Single bone */
+            tempMatrix = boneMatrix[boneId];
+        }
+        else if(skinningMode == 1)
+        {
+            /* Per vertex */
+            tempMatrix = boneMatrix[lookupId];
+        }
+        else if(skinningMode == 2)
+        {
+            /* Per vertex, no translation */
+            tempMatrix = boneMatrix[lookupId];
+            // do in modelhandler?
+        }
     }
-    else if(skinningMode == 1)
-    {
-        /* Per vertex */
-        tempMatrix = boneMatrix[lookupId];
-    }
-    else if(skinningMode == 2)
-    {
-        /* Per vertex, no translation */
-        tempMatrix = boneMatrix[lookupId];
-        // do in modelhandler?
-    }
-
+    
     /* Vertex positioning */
     vec4 vertex = vec4(gl_ModelViewMatrix * (tempMatrix * (gl_Vertex * vertexScale)));
     vertexPosition = gl_ProjectionMatrix * vertex;

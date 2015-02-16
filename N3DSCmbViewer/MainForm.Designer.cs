@@ -57,6 +57,8 @@
             this.glControl1 = new Aglex.GLControl();
             this.sfdColladaDae = new System.Windows.Forms.SaveFileDialog();
             this.treeViewEx1 = new N3DSCmbViewer.TreeViewEx();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.enableSkeletalRenderingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.cmsTreeFile.SuspendLayout();
             this.SuspendLayout();
@@ -163,6 +165,8 @@
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.enableHUDToolStripMenuItem,
             this.resetCameraToolStripMenuItem,
+            this.toolStripMenuItem3,
+            this.enableSkeletalRenderingToolStripMenuItem,
             this.toolStripMenuItem2,
             this.disableAllShadersToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
@@ -173,27 +177,27 @@
             // 
             this.enableHUDToolStripMenuItem.CheckOnClick = true;
             this.enableHUDToolStripMenuItem.Name = "enableHUDToolStripMenuItem";
-            this.enableHUDToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.enableHUDToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.enableHUDToolStripMenuItem.Text = "&Enable HUD";
             this.enableHUDToolStripMenuItem.Click += new System.EventHandler(this.enableHUDToolStripMenuItem_Click);
             // 
             // resetCameraToolStripMenuItem
             // 
             this.resetCameraToolStripMenuItem.Name = "resetCameraToolStripMenuItem";
-            this.resetCameraToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.resetCameraToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.resetCameraToolStripMenuItem.Text = "&Reset Camera";
             this.resetCameraToolStripMenuItem.Click += new System.EventHandler(this.resetCameraToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(169, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(205, 6);
             // 
             // disableAllShadersToolStripMenuItem
             // 
             this.disableAllShadersToolStripMenuItem.CheckOnClick = true;
             this.disableAllShadersToolStripMenuItem.Name = "disableAllShadersToolStripMenuItem";
-            this.disableAllShadersToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.disableAllShadersToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.disableAllShadersToolStripMenuItem.Text = "Disable &All Shaders";
             this.disableAllShadersToolStripMenuItem.Click += new System.EventHandler(this.disableAllShadersToolStripMenuItem_Click);
             // 
@@ -273,6 +277,19 @@
             this.treeViewEx1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewEx1_AfterSelect);
             this.treeViewEx1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewEx1_NodeMouseClick);
             // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(205, 6);
+            // 
+            // enableSkeletalRenderingToolStripMenuItem
+            // 
+            this.enableSkeletalRenderingToolStripMenuItem.CheckOnClick = true;
+            this.enableSkeletalRenderingToolStripMenuItem.Name = "enableSkeletalRenderingToolStripMenuItem";
+            this.enableSkeletalRenderingToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.enableSkeletalRenderingToolStripMenuItem.Text = "Enable &Skeletal Rendering";
+            this.enableSkeletalRenderingToolStripMenuItem.Click += new System.EventHandler(this.enableSkeletalRenderingToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -323,6 +340,8 @@
         private System.Windows.Forms.ToolStripMenuItem disableAllShadersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dumpCOLLADAFileToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog sfdColladaDae;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem enableSkeletalRenderingToolStripMenuItem;
     }
 }
 
