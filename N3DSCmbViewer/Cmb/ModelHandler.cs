@@ -23,7 +23,7 @@ namespace N3DSCmbViewer.Cmb
         /* For normal rendering */
         int fragmentObject, program;
         int materialColorLocation;
-        int skinningModeLocation, boneIdLocation;
+        int perVertexSkinningLocation, boneIdLocation;
         int vertBoneBufferId, vertBoneTexId;
         int vertBoneSamplerLocation;
         int elementArrayBufferId;
@@ -41,7 +41,7 @@ namespace N3DSCmbViewer.Cmb
 
         /* For wireframe overlay */
         int fragmentObjectOverlay, programOverlay;
-        int skinningModeLocationOverlay, boneIdLocationOverlay;
+        int perVertexSkinningLocationOverlay, boneIdLocationOverlay;
         int vertBoneSamplerLocationOverlay;
         int vertexScaleLocationOverlay;
 
@@ -127,7 +127,7 @@ namespace N3DSCmbViewer.Cmb
             fragmentObject = vertexObject = program = -1;
             materialColorLocation = -1;
 
-            skinningModeLocation = boneIdLocation = -1;
+            perVertexSkinningLocation = boneIdLocation = -1;
             vertBoneBufferId = vertBoneTexId = -1;
             vertBoneSamplerLocation = -1;
 
@@ -139,7 +139,7 @@ namespace N3DSCmbViewer.Cmb
             enableLightingLocation = -1;
             enableSkeletalStuffLocation = -1;
 
-            skinningModeLocationOverlay = boneIdLocationOverlay = -1;
+            perVertexSkinningLocationOverlay = boneIdLocationOverlay = -1;
             vertBoneSamplerLocationOverlay = -1;
             vertexScaleLocationOverlay = -1;
 
@@ -184,7 +184,7 @@ namespace N3DSCmbViewer.Cmb
                 Aglex.GLSL.CreateVertexShader(ref vertexObject, File.Open("general-vs.glsl", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite));
 
                 Aglex.GLSL.CreateProgram(ref program, fragmentObject, vertexObject);
-                skinningModeLocation = GL.GetUniformLocation(program, "skinningMode");
+                perVertexSkinningLocation = GL.GetUniformLocation(program, "perVertexSkinning");
                 boneIdLocation = GL.GetUniformLocation(program, "boneId");
                 vertBoneSamplerLocation = GL.GetUniformLocation(program, "vertBoneSampler");
 
@@ -199,7 +199,7 @@ namespace N3DSCmbViewer.Cmb
 
                 Aglex.GLSL.CreateProgram(ref programOverlay, fragmentObjectOverlay, vertexObject);
                 vertexScaleLocationOverlay = GL.GetUniformLocation(programOverlay, "vertexScale");
-                skinningModeLocationOverlay = GL.GetUniformLocation(programOverlay, "skinningMode");
+                perVertexSkinningLocationOverlay = GL.GetUniformLocation(programOverlay, "perVertexSkinning");
                 boneIdLocationOverlay = GL.GetUniformLocation(programOverlay, "boneId");
                 vertBoneSamplerLocationOverlay = GL.GetUniformLocation(programOverlay, "vertBoneSampler");
             }
@@ -214,7 +214,7 @@ namespace N3DSCmbViewer.Cmb
             if (vertBoneTexId == -1)
             {
                 vertBoneTexId = GL.GenTexture();
-                GL.ActiveTexture(TextureUnit.Texture8);
+                GL.ActiveTexture(TextureUnit.Texture7);
                 GL.BindTexture(TextureTarget.TextureBuffer, vertBoneTexId);
                 GL.TexBuffer(TextureBufferTarget.TextureBuffer, SizedInternalFormat.R32ui, vertBoneBufferId);
                 GL.BindBuffer(BufferTarget.TextureBuffer, 0);
@@ -350,10 +350,10 @@ namespace N3DSCmbViewer.Cmb
 
                     PrepareBoneInformation(sepd, prms);
 
-                    GL.Uniform1(skinningModeLocation, (int)prms.SkinningMode);
+                    GL.Uniform1(perVertexSkinningLocation, Convert.ToInt16(prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone));
                     GL.Uniform1(boneIdLocation, 0);
 
-                    GL.Uniform1(vertBoneSamplerLocation, 8);
+                    GL.Uniform1(vertBoneSamplerLocation, 7);
 
                     //GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, mat.Float158);
                     GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -399,10 +399,10 @@ namespace N3DSCmbViewer.Cmb
                     {
                         PrepareBoneInformation(sepd, prms);
 
-                        GL.Uniform1(skinningModeLocationOverlay, (int)prms.SkinningMode);
+                        GL.Uniform1(perVertexSkinningLocationOverlay, Convert.ToInt16(prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone));
                         GL.Uniform1(boneIdLocationOverlay, 0);
 
-                        GL.Uniform1(vertBoneSamplerLocationOverlay, 8);
+                        GL.Uniform1(vertBoneSamplerLocationOverlay, 7);
 
                         SetupVertexArray(sepd);
 
@@ -423,14 +423,14 @@ namespace N3DSCmbViewer.Cmb
                 GL.UseProgram(0);
                 GL.Color4(Color4.Red);
                 GL.Begin(PrimitiveType.Points);
-                foreach (SklChunk.Bone bone in Root.SklChunk.Bones) GL.Vertex3(Vector3.Transform(Vector3.One, bone.GetMatrix()));
+                foreach (SklChunk.Bone bone in Root.SklChunk.Bones) GL.Vertex3(Vector3.Transform(Vector3.One, bone.GetMatrix(true)));
                 GL.End();
                 GL.Color4(Color4.Blue);
                 GL.Begin(PrimitiveType.Lines);
                 foreach (SklChunk.Bone bone in Root.SklChunk.Bones.Where(x => x.ParentBone != null))
                 {
-                    GL.Vertex3(Vector3.Transform(Vector3.One, bone.GetMatrix()));
-                    GL.Vertex3(Vector3.Transform(Vector3.One, bone.ParentBone.GetMatrix()));
+                    GL.Vertex3(Vector3.Transform(Vector3.One, bone.GetMatrix(true)));
+                    GL.Vertex3(Vector3.Transform(Vector3.One, bone.ParentBone.GetMatrix(true)));
                 }
                 GL.End();
                 GL.PopAttrib();
@@ -461,7 +461,7 @@ namespace N3DSCmbViewer.Cmb
             /* TODO!! B/C HURR DURR, DON'T KNOW  https://www.the-gcn.com/topic/2859-oot-3d-3ds-model-format-discussion/page-3#entry46121 */
             if (prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone)
             {
-                uint[] lookupInts = new uint[(int)(Root.VatrChunk.BoneIndexLookupSize - sepd.BoneIndexLookupArrayOffset)];
+                uint[] lookupInts = new uint[(int)(Root.VatrChunk.BoneIndexLookupSize - sepd.BoneIndexLookupArrayOffset) / sepd.BoneIndexLookupSize];
                 for (int i = 0; i < lookupInts.Length; i++)
                 {
                     switch (sepd.BoneIndexLookupArrayDataType)
@@ -484,7 +484,7 @@ namespace N3DSCmbViewer.Cmb
                     }
                 }
 
-                GL.ActiveTexture(TextureUnit.Texture8);
+                GL.ActiveTexture(TextureUnit.Texture7);
                 GL.BindTexture(TextureTarget.TextureBuffer, vertBoneTexId);
 
                 GL.BindBuffer(BufferTarget.TextureBuffer, vertBoneBufferId);
@@ -493,10 +493,7 @@ namespace N3DSCmbViewer.Cmb
 
             for (int i = 0; i < prms.BoneIndexCount; i++)
             {
-                Matrix4 matrix = Root.SklChunk.Bones[prms.BoneIndices[i]].GetMatrix();
-
-                //TODO FIXME
-                if (prms.SkinningMode == PrmsChunk.SkinningModes.PerVertexNoTrans) matrix = matrix.ClearTranslation();
+                Matrix4 matrix = Root.SklChunk.Bones[prms.BoneIndices[i]].GetMatrix(prms.SkinningMode != PrmsChunk.SkinningModes.PerVertexNoTrans);
 
                 GL.UniformMatrix4(GL.GetUniformLocation(program, string.Format("boneMatrix[{0}]", i)), false, ref matrix);
             }

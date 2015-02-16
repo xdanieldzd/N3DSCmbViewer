@@ -12,6 +12,9 @@ namespace N3DSCmbViewer
         [STAThread]
         static void Main()
         {
+            /* Make sure OpenTK doesn't swallow ANY BLOODY EXCEPTION THAT OCCURES DURING RENDERING */
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());

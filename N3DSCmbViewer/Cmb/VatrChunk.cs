@@ -15,7 +15,7 @@ namespace N3DSCmbViewer.Cmb
         public const int NormalArray_OoT = 1;
         public const int ColorArray_OoT = 2;
         public const int TextureCoordArray_OoT = 3;
-        public const int BoneIndexLookupArray_OoT = 7;
+        public const int BoneIndexLookupArray_OoT = 6;
 
         public const int VertexArray_MM = 0;
         public const int NormalArray_MM = 1;

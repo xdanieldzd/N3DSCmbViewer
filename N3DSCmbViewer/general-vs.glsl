@@ -15,7 +15,7 @@ varying vec3 normal, halfVector;
 uniform usamplerBuffer vertBoneSampler;
 
 uniform mat4 boneMatrix[MAX_BONE_MATRIX];
-uniform int skinningMode;
+uniform bool perVertexSkinning;
 uniform int boneId;
 uniform float vertexScale;
 uniform float texCoordScale;
@@ -40,25 +40,19 @@ void main()
 
     /* Bone workings */
     mat4 tempMatrix = mat4(1.0);
-    int lookupId = int(texelFetchBuffer(vertBoneSampler, gl_VertexID).r);
-
+    
     if(enableSkeletalStuff)
     {
-        if(skinningMode == 0)
+        int lookupId = int(texelFetchBuffer(vertBoneSampler, gl_VertexID).r);
+        if(perVertexSkinning)
+        {
+            /* Per vertex OR per vertex, no translation*/
+            tempMatrix = boneMatrix[lookupId];
+        }
+        else
         {
             /* Single bone */
             tempMatrix = boneMatrix[boneId];
-        }
-        else if(skinningMode == 1)
-        {
-            /* Per vertex */
-            tempMatrix = boneMatrix[lookupId];
-        }
-        else if(skinningMode == 2)
-        {
-            /* Per vertex, no translation */
-            tempMatrix = boneMatrix[lookupId];
-            // do in modelhandler?
         }
     }
     

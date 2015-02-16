@@ -100,16 +100,16 @@ namespace N3DSCmbViewer.Cmb
                 return sb.ToString();
             }
 
-            public Matrix4 GetMatrix()
+            public Matrix4 GetMatrix(bool useTrans)
             {
                 Matrix4 matrix = Matrix4.Identity;
                 matrix *= Matrix4.CreateScale(ScaleX, ScaleY, ScaleZ);
                 matrix *= Matrix4.CreateRotationX(RotationX);
                 matrix *= Matrix4.CreateRotationY(RotationY);
                 matrix *= Matrix4.CreateRotationZ(RotationZ);
-                matrix *= Matrix4.CreateTranslation(TranslationX, TranslationY, TranslationZ);
+                if (useTrans) matrix *= Matrix4.CreateTranslation(TranslationX, TranslationY, TranslationZ);
 
-                if (ParentBone != null) matrix *= ParentBone.GetMatrix();
+                if (ParentBone != null) matrix *= ParentBone.GetMatrix(useTrans);
 
                 return matrix;
             }

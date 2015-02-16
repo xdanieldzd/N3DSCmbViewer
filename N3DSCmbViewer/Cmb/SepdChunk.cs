@@ -67,6 +67,8 @@ namespace N3DSCmbViewer.Cmb
         public TexCoordPointerType TexCoordPointerType { get; private set; }
         public int TexCoordSize { get; private set; }
 
+        public int BoneIndexLookupSize { get; private set; }
+
         public int TotalPrimitives { get; private set; }
 
         public SepdChunk(byte[] data, int offset, BaseCTRChunk parent)
@@ -211,6 +213,25 @@ namespace N3DSCmbViewer.Cmb
                 case Constants.DataTypes.GL_FLOAT:
                     VertexPointerType = VertexPointerType.Float;
                     VertexSize = (sizeof(float) * 3);
+                    break;
+            }
+
+            switch (BoneIndexLookupArrayDataType)
+            {
+                case Constants.DataTypes.GL_BYTE:
+                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                    BoneIndexLookupSize = sizeof(byte);
+                    break;
+                case Constants.DataTypes.GL_SHORT:
+                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                    BoneIndexLookupSize = sizeof(ushort);
+                    break;
+                case Constants.DataTypes.GL_INT:
+                case Constants.DataTypes.GL_UNSIGNED_INT:
+                    BoneIndexLookupSize = sizeof(uint);
+                    break;
+                case Constants.DataTypes.GL_FLOAT:
+                    BoneIndexLookupSize = sizeof(float);
                     break;
             }
 
