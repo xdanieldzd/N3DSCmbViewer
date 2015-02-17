@@ -21,20 +21,20 @@ namespace N3DSCmbViewer.Cmb
 
         public enum Formats : uint
         {
-            ETC1 = Constants.TextureFormats.GL_ETC1_RGB8_NATIVE_DMP,
-            ETC1A4 = Constants.TextureFormats.GL_ETC1_ALPHA_RGB8_A4_NATIVE_DMP,
-            RGBA8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_RGBA_NATIVE_DMP),
-            RGB8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_RGB_NATIVE_DMP),
-            RGBA4 = ((uint)Constants.DataTypes.GL_UNSIGNED_SHORT_4_4_4_4 << 16 | Constants.TextureFormats.GL_RGBA_NATIVE_DMP),
-            RGBA5551 = ((uint)Constants.DataTypes.GL_UNSIGNED_SHORT_5_5_5_1 << 16 | Constants.TextureFormats.GL_RGBA_NATIVE_DMP),
-            RGB565 = ((uint)Constants.DataTypes.GL_UNSIGNED_SHORT_5_6_5 << 16 | Constants.TextureFormats.GL_RGB_NATIVE_DMP),
-            LA4 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE_4_4_DMP << 16 | Constants.TextureFormats.GL_LUMINANCE_ALPHA_NATIVE_DMP),
-            LA8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_LUMINANCE_ALPHA_NATIVE_DMP),
-            A8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_ALPHA_NATIVE_DMP),
-            L8 = ((uint)Constants.DataTypes.GL_UNSIGNED_BYTE << 16 | Constants.TextureFormats.GL_LUMINANCE_NATIVE_DMP),
+            ETC1 = Constants.TextureFormats.ETC1RGB8NativeDMP,
+            ETC1A4 = Constants.TextureFormats.ETC1AlphaRGB8A4NativeDMP,
+            RGBA8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.RGBANativeDMP),
+            RGB8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.RGBNativeDMP),
+            RGBA4 = ((uint)Constants.DataTypes.UnsignedShort4444 << 16 | Constants.TextureFormats.RGBANativeDMP),
+            RGBA5551 = ((uint)Constants.DataTypes.UnsignedShort5551 << 16 | Constants.TextureFormats.RGBANativeDMP),
+            RGB565 = ((uint)Constants.DataTypes.UnsignedShort565 << 16 | Constants.TextureFormats.RGBNativeDMP),
+            LA4 = ((uint)Constants.DataTypes.UnsignedByte44DMP << 16 | Constants.TextureFormats.LuminanceAlphaNativeDMP),
+            LA8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.LuminanceAlphaNativeDMP),
+            A8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.AlphaNativeDMP),
+            L8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.LuminanceNativeDMP),
 
             /* Needs rewrite to support formats w/ <1byte per pixel */
-            L4 = ((uint)Constants.DataTypes.GL_UNSIGNED_4BITS_DMP << 16 | Constants.TextureFormats.GL_LUMINANCE_NATIVE_DMP)
+            L4 = ((uint)Constants.DataTypes.Unsigned4BitsDMP << 16 | Constants.TextureFormats.LuminanceNativeDMP)
         };
 
         public uint TextureCount { get; private set; }

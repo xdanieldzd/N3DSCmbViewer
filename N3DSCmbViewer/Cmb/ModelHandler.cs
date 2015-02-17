@@ -442,24 +442,24 @@ namespace N3DSCmbViewer.Cmb
             /* TODO!! B/C HURR DURR, DON'T KNOW  https://www.the-gcn.com/topic/2859-oot-3d-3ds-model-format-discussion/page-3#entry46121 */
             if (prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone)
             {
-                uint[] lookupInts = new uint[(int)(Root.VatrChunk.BoneIndexLookupSize - sepd.BoneIndexLookupArrayOffset) / sepd.BoneIndexLookupSize];
+                uint[] lookupInts = new uint[(int)(Root.VatrChunk.BoneIndexLookup.Length - sepd.BoneIndexLookupArrayOffset) / sepd.BoneIndexLookupSize];
                 for (int i = 0; i < lookupInts.Length; i++)
                 {
                     switch (sepd.BoneIndexLookupArrayDataType)
                     {
-                        case Constants.DataTypes.GL_BYTE:
-                        case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                        case Constants.DataTypes.Byte:
+                        case Constants.DataTypes.UnsignedByte:
                             lookupInts[i] = (uint)Root.VatrChunk.BoneIndexLookup[sepd.BoneIndexLookupArrayOffset + (i * sizeof(byte))];
                             break;
-                        case Constants.DataTypes.GL_SHORT:
-                        case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                        case Constants.DataTypes.Short:
+                        case Constants.DataTypes.UnsignedShort:
                             lookupInts[i] = (uint)BitConverter.ToUInt16(Root.VatrChunk.BoneIndexLookup, (int)(sepd.BoneIndexLookupArrayOffset + (i * sizeof(ushort))));
                             break;
-                        case Constants.DataTypes.GL_INT:
-                        case Constants.DataTypes.GL_UNSIGNED_INT:
+                        case Constants.DataTypes.Int:
+                        case Constants.DataTypes.UnsignedInt:
                             lookupInts[i] = (uint)BitConverter.ToUInt32(Root.VatrChunk.BoneIndexLookup, (int)(sepd.BoneIndexLookupArrayOffset + (i * sizeof(uint))));
                             break;
-                        case Constants.DataTypes.GL_FLOAT:
+                        case Constants.DataTypes.Float:
                             lookupInts[i] = (uint)BitConverter.ToSingle(Root.VatrChunk.BoneIndexLookup, (int)(sepd.BoneIndexLookupArrayOffset + (i * sizeof(float))));
                             break;
                     }
@@ -470,6 +470,15 @@ namespace N3DSCmbViewer.Cmb
 
                 GL.BindBuffer(BufferTarget.TextureBuffer, vertBoneBufferId);
                 GL.BufferSubData<uint>(BufferTarget.TextureBuffer, IntPtr.Zero, new IntPtr(lookupInts.Length * sizeof(uint)), lookupInts);
+            }
+
+            /* Maaaaaaybe? I dunno... not using this yet either */
+            Vector2[] weights = new Vector2[(int)(Root.VatrChunk.BoneWeights.Length - sepd.BoneWeightArrayOffset) / 2];
+            for (int i = 0, j = 0; i < weights.Length; i++, j += 2)
+            {
+                weights[i] = new Vector2(
+                    Root.VatrChunk.BoneWeights[sepd.BoneWeightArrayOffset + j],
+                    Root.VatrChunk.BoneWeights[sepd.BoneWeightArrayOffset + (j + 1)]);
             }
 
             for (int i = 0; i < prms.BoneIndexCount; i++)
@@ -503,7 +512,7 @@ namespace N3DSCmbViewer.Cmb
             if (Root.VatrChunk.TextureCoords.Length > 0)
             {
                 GL.EnableClientState(ArrayCap.TextureCoordArray);
-                if (sepd.TextureCoordArrayDataType == Constants.DataTypes.GL_BYTE || sepd.TextureCoordArrayDataType == Constants.DataTypes.GL_UNSIGNED_BYTE)
+                if (sepd.TextureCoordArrayDataType == Constants.DataTypes.Byte || sepd.TextureCoordArrayDataType == Constants.DataTypes.UnsignedByte)
                 {
                     short[] converted = new short[Root.VatrChunk.TextureCoords.Length];
                     for (int i = 0; i < Root.VatrChunk.TextureCoords.Length; i++) converted[i] = Root.VatrChunk.TextureCoords[i];
@@ -519,7 +528,7 @@ namespace N3DSCmbViewer.Cmb
             if (Root.VatrChunk.Vertices.Length > 0)
             {
                 GL.EnableClientState(ArrayCap.VertexArray);
-                if (sepd.VertexArrayDataType == Constants.DataTypes.GL_BYTE || sepd.VertexArrayDataType == Constants.DataTypes.GL_UNSIGNED_BYTE)
+                if (sepd.VertexArrayDataType == Constants.DataTypes.Byte || sepd.VertexArrayDataType == Constants.DataTypes.UnsignedByte)
                 {
                     short[] converted = new short[Root.VatrChunk.Vertices.Length];
                     for (int i = 0; i < Root.VatrChunk.Vertices.Length; i++) converted[i] = Root.VatrChunk.Vertices[i];

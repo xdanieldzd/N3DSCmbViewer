@@ -38,15 +38,15 @@ namespace N3DSCmbViewer.Cmb
 
             switch (DataType)
             {
-                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                case Constants.DataTypes.UnsignedByte:
                     DrawElementsType = DrawElementsType.UnsignedByte;
                     ElementSize = sizeof(byte);
                     break;
-                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                case Constants.DataTypes.UnsignedShort:
                     DrawElementsType = DrawElementsType.UnsignedShort;
                     ElementSize = sizeof(short);
                     break;
-                case Constants.DataTypes.GL_UNSIGNED_INT:
+                case Constants.DataTypes.UnsignedInt:
                     DrawElementsType = DrawElementsType.UnsignedInt;
                     ElementSize = sizeof(int);
                     break;

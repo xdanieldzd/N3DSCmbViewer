@@ -54,6 +54,10 @@ namespace N3DSCmbViewer.Cmb
         public float BoneIndexLookupArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneIndexLookupArray_MM : VatrChunk.BoneIndexLookupArray_OoT]; } }
         public Constants.DataTypes BoneIndexLookupArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneIndexLookupArray_MM : VatrChunk.BoneIndexLookupArray_OoT]; } }
 
+        public uint BoneWeightArrayOffset { get { return ArrayOffsets[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneWeightArray_MM : VatrChunk.BoneWeightArray_OoT]; } }
+        public float BoneWeightArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneWeightArray_MM : VatrChunk.BoneWeightArray_OoT]; } }
+        public Constants.DataTypes BoneWeightArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneWeightArray_MM : VatrChunk.BoneWeightArray_OoT]; } }
+
         public uint Unknown_104OoT_120MM { get; private set; }
 
         public PrmsChunk[] PrmsChunks { get; private set; }
@@ -115,22 +119,22 @@ namespace N3DSCmbViewer.Cmb
 
             switch (NormalArrayDataType)
             {
-                case Constants.DataTypes.GL_BYTE:
-                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                case Constants.DataTypes.Byte:
+                case Constants.DataTypes.UnsignedByte:
                     NormalPointerType = NormalPointerType.Byte;
                     NormalSize = (sizeof(byte) * 3);
                     break;
-                case Constants.DataTypes.GL_SHORT:
-                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                case Constants.DataTypes.Short:
+                case Constants.DataTypes.UnsignedShort:
                     NormalPointerType = NormalPointerType.Short;
                     NormalSize = (sizeof(ushort) * 3);
                     break;
-                case Constants.DataTypes.GL_INT:
-                case Constants.DataTypes.GL_UNSIGNED_INT:
+                case Constants.DataTypes.Int:
+                case Constants.DataTypes.UnsignedInt:
                     NormalPointerType = NormalPointerType.Int;
                     NormalSize = (sizeof(uint) * 3);
                     break;
-                case Constants.DataTypes.GL_FLOAT:
+                case Constants.DataTypes.Float:
                     NormalPointerType = NormalPointerType.Float;
                     NormalSize = (sizeof(float) * 3);
                     break;
@@ -138,31 +142,31 @@ namespace N3DSCmbViewer.Cmb
 
             switch (ColorArrayDataType)
             {
-                case Constants.DataTypes.GL_BYTE:
+                case Constants.DataTypes.Byte:
                     ColorPointerType = ColorPointerType.Byte;
                     ColorSize = (sizeof(sbyte) * 4);
                     break;
-                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                case Constants.DataTypes.UnsignedByte:
                     ColorPointerType = ColorPointerType.UnsignedByte;
                     ColorSize = (sizeof(byte) * 4);
                     break;
-                case Constants.DataTypes.GL_SHORT:
+                case Constants.DataTypes.Short:
                     ColorPointerType = ColorPointerType.Short;
                     ColorSize = (sizeof(short) * 4);
                     break;
-                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                case Constants.DataTypes.UnsignedShort:
                     ColorPointerType = ColorPointerType.UnsignedShort;
                     ColorSize = (sizeof(ushort) * 4);
                     break;
-                case Constants.DataTypes.GL_INT:
+                case Constants.DataTypes.Int:
                     ColorPointerType = ColorPointerType.Int;
                     ColorSize = (sizeof(int) * 4);
                     break;
-                case Constants.DataTypes.GL_UNSIGNED_INT:
+                case Constants.DataTypes.UnsignedInt:
                     ColorPointerType = ColorPointerType.UnsignedInt;
                     ColorSize = (sizeof(uint) * 4);
                     break;
-                case Constants.DataTypes.GL_FLOAT:
+                case Constants.DataTypes.Float:
                     ColorPointerType = ColorPointerType.Float;
                     ColorSize = (sizeof(float) * 4);
                     break;
@@ -170,23 +174,23 @@ namespace N3DSCmbViewer.Cmb
 
             switch (TextureCoordArrayDataType)
             {
-                case Constants.DataTypes.GL_BYTE:
-                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                case Constants.DataTypes.Byte:
+                case Constants.DataTypes.UnsignedByte:
                     /* Needs conversion to short during rendering! */
                     TexCoordPointerType = TexCoordPointerType.Short;
                     TexCoordSize = (sizeof(byte) * 2);
                     break;
-                case Constants.DataTypes.GL_SHORT:
-                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                case Constants.DataTypes.Short:
+                case Constants.DataTypes.UnsignedShort:
                     TexCoordPointerType = TexCoordPointerType.Short;
                     TexCoordSize = (sizeof(ushort) * 2);
                     break;
-                case Constants.DataTypes.GL_INT:
-                case Constants.DataTypes.GL_UNSIGNED_INT:
+                case Constants.DataTypes.Int:
+                case Constants.DataTypes.UnsignedInt:
                     TexCoordPointerType = TexCoordPointerType.Int;
                     TexCoordSize = (sizeof(uint) * 2);
                     break;
-                case Constants.DataTypes.GL_FLOAT:
+                case Constants.DataTypes.Float:
                     TexCoordPointerType = TexCoordPointerType.Float;
                     TexCoordSize = (sizeof(float) * 2);
                     break;
@@ -194,23 +198,23 @@ namespace N3DSCmbViewer.Cmb
 
             switch (VertexArrayDataType)
             {
-                case Constants.DataTypes.GL_BYTE:
-                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                case Constants.DataTypes.Byte:
+                case Constants.DataTypes.UnsignedByte:
                     /* Needs conversion to short during rendering! */
                     VertexPointerType = VertexPointerType.Short;
                     VertexSize = (sizeof(byte) * 3);
                     break;
-                case Constants.DataTypes.GL_SHORT:
-                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                case Constants.DataTypes.Short:
+                case Constants.DataTypes.UnsignedShort:
                     VertexPointerType = VertexPointerType.Short;
                     VertexSize = (sizeof(ushort) * 3);
                     break;
-                case Constants.DataTypes.GL_INT:
-                case Constants.DataTypes.GL_UNSIGNED_INT:
+                case Constants.DataTypes.Int:
+                case Constants.DataTypes.UnsignedInt:
                     VertexPointerType = VertexPointerType.Int;
                     VertexSize = (sizeof(uint) * 3);
                     break;
-                case Constants.DataTypes.GL_FLOAT:
+                case Constants.DataTypes.Float:
                     VertexPointerType = VertexPointerType.Float;
                     VertexSize = (sizeof(float) * 3);
                     break;
@@ -218,19 +222,19 @@ namespace N3DSCmbViewer.Cmb
 
             switch (BoneIndexLookupArrayDataType)
             {
-                case Constants.DataTypes.GL_BYTE:
-                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                case Constants.DataTypes.Byte:
+                case Constants.DataTypes.UnsignedByte:
                     BoneIndexLookupSize = sizeof(byte);
                     break;
-                case Constants.DataTypes.GL_SHORT:
-                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                case Constants.DataTypes.Short:
+                case Constants.DataTypes.UnsignedShort:
                     BoneIndexLookupSize = sizeof(ushort);
                     break;
-                case Constants.DataTypes.GL_INT:
-                case Constants.DataTypes.GL_UNSIGNED_INT:
+                case Constants.DataTypes.Int:
+                case Constants.DataTypes.UnsignedInt:
                     BoneIndexLookupSize = sizeof(uint);
                     break;
-                case Constants.DataTypes.GL_FLOAT:
+                case Constants.DataTypes.Float:
                     BoneIndexLookupSize = sizeof(float);
                     break;
             }
@@ -252,12 +256,14 @@ namespace N3DSCmbViewer.Cmb
                 "Color array data -> Offset: 0x{7:X}, Scale: {8}, Datatype: {9}\n" +
                 "Tex coord array data -> Offset: 0x{10:X}, Scale: {11}, Datatype: {12}\n" +
                 "Bone lookup array data -> Offset: 0x{13:X}, Scale: {14}, Datatype: {15}\n" +
+                "Bone weight array data -> Offset: 0x{16:X}, Scale: {17}, Datatype: {18}\n" +
                 "(data for other arrays here, don't know them...)\n",
                 PrmsCount, VertexArrayOffset, VertexArrayScale, VertexArrayDataType,
                 NormalArrayOffset, NormalArrayScale, NormalArrayDataType,
                 ColorArrayOffset, ColorArrayScale, ColorArrayDataType,
                 TextureCoordArrayOffset, TextureCoordArrayScale, TextureCoordArrayDataType,
-                BoneIndexLookupArrayOffset, BoneIndexLookupArrayScale, BoneIndexLookupArrayDataType);
+                BoneIndexLookupArrayOffset, BoneIndexLookupArrayScale, BoneIndexLookupArrayDataType,
+                BoneWeightArrayOffset, BoneWeightArrayScale, BoneWeightArrayDataType);
             sb.AppendLine();
 
             foreach (PrmsChunk prms in PrmsChunks) sb.Append(prms.ToString());

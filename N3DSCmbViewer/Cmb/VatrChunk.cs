@@ -16,20 +16,21 @@ namespace N3DSCmbViewer.Cmb
         public const int ColorArray_OoT = 2;
         public const int TextureCoordArray_OoT = 3;
         public const int BoneIndexLookupArray_OoT = 6;
+        public const int BoneWeightArray_OoT = 7;
 
         public const int VertexArray_MM = 0;
         public const int NormalArray_MM = 1;
         public const int ColorArray_MM = 3;
         public const int TextureCoordArray_MM = 4;
         public const int BoneIndexLookupArray_MM = 7;
+        public const int BoneWeightArray_MM = 8;
 
         public byte[] Vertices { get { return Arrays[BaseCTRChunk.IsMajora3D ? VertexArray_MM : VertexArray_OoT]; } }
         public byte[] Normals { get { return Arrays[BaseCTRChunk.IsMajora3D ? NormalArray_MM : NormalArray_OoT]; } }
         public byte[] Colors { get { return Arrays[BaseCTRChunk.IsMajora3D ? ColorArray_MM : ColorArray_OoT]; } }
         public byte[] TextureCoords { get { return Arrays[BaseCTRChunk.IsMajora3D ? TextureCoordArray_MM : TextureCoordArray_OoT]; } }
         public byte[] BoneIndexLookup { get { return Arrays[BaseCTRChunk.IsMajora3D ? BoneIndexLookupArray_MM : BoneIndexLookupArray_OoT]; } }
-
-        public uint BoneIndexLookupSize { get { return Sizes[BaseCTRChunk.IsMajora3D ? BoneIndexLookupArray_MM : BoneIndexLookupArray_OoT]; } }
+        public byte[] BoneWeights { get { return Arrays[BaseCTRChunk.IsMajora3D ? BoneWeightArray_MM : BoneWeightArray_OoT]; } }
 
         public uint MaxVertexIndexOrSomething { get; private set; }
 
@@ -63,26 +64,32 @@ namespace N3DSCmbViewer.Cmb
             StringBuilder sb = new StringBuilder();
 
             sb.AppendFormat("-- {0} --\n", this.GetType().Name);
-            /*sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture,
-                "Unknown: 0x{0:X}\n" +
-                "Vertex array -> Size: 0x{1:X}, Offset: 0x{2:X}\n" +
-                "Normal array -> Size: 0x{3:X}, Offset: 0x{4:X}\n" +
-                "Color array -> Size: 0x{5:X}, Offset: 0x{6:X}\n" +
-                "Tex coord array -> Size: 0x{7:X}, Offset: 0x{8:X}\n" +
-                "Unknown array 1 -> Size: 0x{9:X}, Offset: 0x{10:X}\n" +
-                "Unknown array 2 -> Size: 0x{11:X}, Offset: 0x{12:X}\n" +
-                "Bone index lookup array -> Size: 0x{13:X}, Offset: 0x{14:X}\n" +
-                "Unknown array 4 (anim-related?) -> Size: 0x{15:X}, Offset: 0x{16:X}\n",
-                MaxVertexIndexOrSomething,
-                VertexArraySize, VertexArrayOffset,
-                NormalArraySize, NormalArrayOffset,
-                ColorArraySize, ColorArrayOffset,
-                TextureCoordArraySize, TextureCoordArrayOffset,
-                UnknownArray5Size, UnknownArray5Offset,
-                UnknownArray6Size, UnknownArray6Offset,
-                BoneIndexLookupSize, BoneIndexLookupOffset,
-                UnknownArray8Size, UnknownArray8Offset);
-            */
+            sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "Unknown (max vert idx?): 0x{0:X}\n", MaxVertexIndexOrSomething);
+            for (int i = 0; i < Sizes.Length; i++)
+            {
+                sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "Array #{0} -> Size: 0x{1:X}, Offset: 0x{2:X}", i, Sizes[i], Offsets[i]);
+                if (!BaseCTRChunk.IsMajora3D)
+                {
+                    if (i == VertexArray_OoT) sb.AppendLine(" (vertices)");
+                    else if (i == NormalArray_OoT) sb.AppendLine(" (normals)");
+                    else if (i == ColorArray_OoT) sb.AppendLine(" (colors)");
+                    else if (i == TextureCoordArray_OoT) sb.AppendLine(" (tex coords)");
+                    else if (i == BoneIndexLookupArray_OoT) sb.AppendLine(" (bone index lookup)");
+                    else if (i == BoneWeightArray_OoT) sb.AppendLine(" (bone weights)");
+                    else sb.AppendLine();
+                }
+                else
+                {
+                    if (i == VertexArray_MM) sb.AppendLine(" (vertices)");
+                    else if (i == NormalArray_MM) sb.AppendLine(" (normals)");
+                    else if (i == ColorArray_MM) sb.AppendLine(" (colors)");
+                    else if (i == TextureCoordArray_MM) sb.AppendLine(" (tex coords)");
+                    else if (i == BoneIndexLookupArray_MM) sb.AppendLine(" (bone index lookup)");
+                    else if (i == BoneWeightArray_MM) sb.AppendLine(" (bone weights)");
+                    else sb.AppendLine();
+                }
+            }
+
             return sb.ToString();
         }
     }

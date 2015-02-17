@@ -442,15 +442,15 @@ namespace N3DSCmbViewer.Cmb
                                     uint[] idx = new uint[prms.PrmChunk.NumberOfIndices];
                                     switch (prms.PrmChunk.DataType)
                                     {
-                                        case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                                        case Constants.DataTypes.UnsignedByte:
                                             for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
                                                 idx[i] = (uint)cmbRoot.Indices[(prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize)];
                                             break;
-                                        case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                                        case Constants.DataTypes.UnsignedShort:
                                             for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
                                                 idx[i] = (uint)BitConverter.ToUInt16(cmbRoot.Indices, (prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize));
                                             break;
-                                        case Constants.DataTypes.GL_UNSIGNED_INT:
+                                        case Constants.DataTypes.UnsignedInt:
                                             for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
                                                 idx[i] = BitConverter.ToUInt32(cmbRoot.Indices, (prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize));
                                             break;
@@ -479,8 +479,8 @@ namespace N3DSCmbViewer.Cmb
 
             switch (format)
             {
-                case Constants.DataTypes.GL_BYTE:
-                case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                case Constants.DataTypes.Byte:
+                case Constants.DataTypes.UnsignedByte:
                     {
                         byte[] temp = new byte[(data.Length - offset) / sizeof(byte)];
                         Buffer.BlockCopy(data, (int)offset, temp, 0, temp.Length * sizeof(byte));
@@ -489,8 +489,8 @@ namespace N3DSCmbViewer.Cmb
                     }
                     break;
 
-                case Constants.DataTypes.GL_SHORT:
-                case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                case Constants.DataTypes.Short:
+                case Constants.DataTypes.UnsignedShort:
                     {
                         short[] temp = new short[(data.Length - offset) / sizeof(short)];
                         Buffer.BlockCopy(data, (int)offset, temp, 0, temp.Length * sizeof(short));
@@ -499,7 +499,7 @@ namespace N3DSCmbViewer.Cmb
                     }
                     break;
 
-                case Constants.DataTypes.GL_FLOAT:
+                case Constants.DataTypes.Float:
                     {
                         int texCoordDataLength = (int)(data.Length - offset);
                         dataOut = new float[texCoordDataLength / sizeof(float)];
