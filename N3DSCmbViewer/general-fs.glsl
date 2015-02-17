@@ -42,7 +42,7 @@ void main()
     }
 
     /* Texturing */
-	vec2 textureCoord0 = vec2(gl_TexCoord[0].s, 1.0 - gl_TexCoord[0].t);
+    vec2 textureCoord0 = vec2(gl_TexCoord[0].s, 1.0 - gl_TexCoord[0].t);
     vec4 textureColor0 = texture2D(tex0, textureCoord0);
     vec4 textureColor1 = texture2D(tex1, textureCoord0);
     vec4 textureMixed = textureColor0;   // * textureColor1;
