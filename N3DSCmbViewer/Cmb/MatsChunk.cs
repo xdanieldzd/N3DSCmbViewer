@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using OpenTK.Graphics.OpenGL;
+
 namespace N3DSCmbViewer.Cmb
 {
     [System.Diagnostics.DebuggerDisplay("{GetType()}")]
@@ -14,7 +16,7 @@ namespace N3DSCmbViewer.Cmb
         public uint MaterialCount { get; private set; }
 
         public Material[] Materials { get; private set; }
-        public MaterialMore[] MaterialMores { get; private set; }
+        public TexEnvStuff[] TexEnvStuffs { get; private set; }
 
         public MatsChunk(byte[] data, int offset, BaseCTRChunk parent)
             : base(data, offset, parent)
@@ -26,10 +28,8 @@ namespace N3DSCmbViewer.Cmb
             Materials = new Material[MaterialCount];
             for (int i = 0; i < Materials.Length; i++) Materials[i] = new Material(ChunkData, 0xC + (i * matDataSize));
 
-            //MaterialMores = new MaterialMore[MaterialCount];
-            //for (int i = 0; i < MaterialMores.Length; i++) MaterialMores[i] = new MaterialMore(ChunkData, 0xC + (int)(MaterialCount * Material.DataSize) + (i * MaterialMore.DataSize));
-
-            //cannot read MaterialMores   given chunk size too small!?!
+            TexEnvStuffs = new TexEnvStuff[MaterialCount];
+            for (int i = 0; i < TexEnvStuffs.Length; i++) TexEnvStuffs[i] = new TexEnvStuff(ChunkData, 0xC + (int)(MaterialCount * matDataSize) + (i * TexEnvStuff.DataSize));
         }
 
         public override string ToString()
@@ -57,20 +57,20 @@ namespace N3DSCmbViewer.Cmb
             public uint Unknown00C { get; private set; }
             public short Stg1TextureID { get; private set; }
             public ushort Unknown012 { get; private set; }
-            public Constants.TextureMinMagFilter Stg1TextureMinFilter { get; private set; }    //2601
-            public Constants.TextureMinMagFilter Stg1TextureMagFilter { get; private set; }    //2601
-            public Constants.TextureWrapMode Stg1TextureWrapModeS { get; private set; }    //2901
-            public Constants.TextureWrapMode Stg1TextureWrapModeT { get; private set; }    //2901
+            public TextureMinFilter Stg1TextureMinFilter { get; private set; }    //2601
+            public TextureMagFilter Stg1TextureMagFilter { get; private set; }    //2601
+            public TextureWrapMode Stg1TextureWrapModeS { get; private set; }    //2901
+            public TextureWrapMode Stg1TextureWrapModeT { get; private set; }    //2901
             public uint Unknown01C { get; private set; }
             public uint Unknown020 { get; private set; }
             public uint Unknown024 { get; private set; }
             public uint Unknown026 { get; private set; }
             public short MaybeStg2TextureID { get; private set; }
             public ushort Unknown02A { get; private set; }
-            public Constants.TextureMinMagFilter MaybeStg2TextureMinFilter { get; private set; }
-            public Constants.TextureMinMagFilter MaybeStg2TextureMagFilter { get; private set; }
-            public Constants.TextureWrapMode MaybeStg2TextureWrapModeS { get; private set; }
-            public Constants.TextureWrapMode MaybeStg2TextureWrapModeT { get; private set; }
+            public TextureMinFilter MaybeStg2TextureMinFilter { get; private set; }
+            public TextureMagFilter MaybeStg2TextureMagFilter { get; private set; }
+            public TextureWrapMode MaybeStg2TextureWrapModeS { get; private set; }
+            public TextureWrapMode MaybeStg2TextureWrapModeT { get; private set; }
             public uint Unknown034 { get; private set; }
             public uint Unknown038 { get; private set; }
             public uint Unknown03C { get; private set; }
@@ -130,12 +130,13 @@ namespace N3DSCmbViewer.Cmb
             public float Float114 { get; private set; }
             public uint Unknown118 { get; private set; }    //62A0FF01
             public float Float11C { get; private set; }
-            public uint NumberOfIndicesToMaterialMore { get; private set; }    //00000001
-            public ushort[] IndicesToMaterialMore { get; private set; }
+            public uint NumberOfIndicesToTexEnvStuff { get; private set; }    //00000001
+            public ushort[] IndicesToTexEnvStuff { get; private set; }
             public uint Unknown130 { get; private set; }    //02070000
             public uint Unknown134 { get; private set; }    //02010101
             public uint Unknown138 { get; private set; }
-            public uint Unknown13C { get; private set; }    //03030302
+            public BlendingFactorSrc BlendingFactorSrc { get; private set; }    //0303
+            public BlendingFactorDest BlendingFactorDest { get; private set; }    //0302
             public uint Unknown140 { get; private set; }    //00008006
             public uint Unknown144 { get; private set; }    //00000001
             public uint Unknown148 { get; private set; }    //00008006
@@ -152,19 +153,19 @@ namespace N3DSCmbViewer.Cmb
                 Unknown00C = BitConverter.ToUInt32(data, offset + 0x00C);
                 Stg1TextureID = BitConverter.ToInt16(data, offset + 0x010);
                 Unknown012 = BitConverter.ToUInt16(data, offset + 0x012);
-                Stg1TextureMinFilter = (Constants.TextureMinMagFilter)BitConverter.ToUInt16(data, offset + 0x014);
-                Stg1TextureMagFilter = (Constants.TextureMinMagFilter)BitConverter.ToUInt16(data, offset + 0x016);
-                Stg1TextureWrapModeS = (Constants.TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x018);
-                Stg1TextureWrapModeT = (Constants.TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x01A);
+                Stg1TextureMinFilter = (TextureMinFilter)BitConverter.ToUInt16(data, offset + 0x014);
+                Stg1TextureMagFilter = (TextureMagFilter)BitConverter.ToUInt16(data, offset + 0x016);
+                Stg1TextureWrapModeS = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x018);
+                Stg1TextureWrapModeT = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x01A);
                 Unknown01C = BitConverter.ToUInt32(data, offset + 0x01C);
                 Unknown020 = BitConverter.ToUInt32(data, offset + 0x020);
                 Unknown024 = BitConverter.ToUInt32(data, offset + 0x024);
                 MaybeStg2TextureID = BitConverter.ToInt16(data, offset + 0x028);
                 Unknown02A = BitConverter.ToUInt16(data, offset + 0x02A);
-                MaybeStg2TextureMinFilter = (Constants.TextureMinMagFilter)BitConverter.ToUInt16(data, offset + 0x02C);
-                MaybeStg2TextureMagFilter = (Constants.TextureMinMagFilter)BitConverter.ToUInt16(data, offset + 0x02E);
-                MaybeStg2TextureWrapModeS = (Constants.TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x030);
-                MaybeStg2TextureWrapModeT = (Constants.TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x032);
+                MaybeStg2TextureMinFilter = (TextureMinFilter)BitConverter.ToUInt16(data, offset + 0x02C);
+                MaybeStg2TextureMagFilter = (TextureMagFilter)BitConverter.ToUInt16(data, offset + 0x02E);
+                MaybeStg2TextureWrapModeS = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x030);
+                MaybeStg2TextureWrapModeT = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x032);
                 Unknown034 = BitConverter.ToUInt32(data, offset + 0x034);
                 Unknown038 = BitConverter.ToUInt32(data, offset + 0x038);
                 Unknown03C = BitConverter.ToUInt32(data, offset + 0x03C);
@@ -219,13 +220,14 @@ namespace N3DSCmbViewer.Cmb
                 Float114 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x114)), 0);
                 Unknown118 = BitConverter.ToUInt32(data, offset + 0x118);
                 Float11C = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x11C)), 0);
-                NumberOfIndicesToMaterialMore = BitConverter.ToUInt32(data, offset + 0x120);
-                IndicesToMaterialMore = new ushort[NumberOfIndicesToMaterialMore];
-                for (int i = 0; i < IndicesToMaterialMore.Length; i++) IndicesToMaterialMore[i] = BitConverter.ToUInt16(data, offset + 0x124 + (i * sizeof(ushort)));
+                NumberOfIndicesToTexEnvStuff = BitConverter.ToUInt32(data, offset + 0x120);
+                IndicesToTexEnvStuff = new ushort[NumberOfIndicesToTexEnvStuff];
+                for (int i = 0; i < IndicesToTexEnvStuff.Length; i++) IndicesToTexEnvStuff[i] = BitConverter.ToUInt16(data, offset + 0x124 + (i * sizeof(ushort)));
                 Unknown130 = BitConverter.ToUInt32(data, offset + 0x130);
                 Unknown134 = BitConverter.ToUInt32(data, offset + 0x134);
                 Unknown138 = BitConverter.ToUInt32(data, offset + 0x138);
-                Unknown13C = BitConverter.ToUInt32(data, offset + 0x13C);
+                BlendingFactorSrc = (BlendingFactorSrc)BitConverter.ToUInt16(data, offset + 0x13C);
+                BlendingFactorDest = (BlendingFactorDest)BitConverter.ToUInt16(data, offset + 0x13E);
                 Unknown140 = BitConverter.ToUInt32(data, offset + 0x140);
                 Unknown144 = BitConverter.ToUInt32(data, offset + 0x144);
                 Unknown148 = BitConverter.ToUInt32(data, offset + 0x148);
@@ -244,7 +246,7 @@ namespace N3DSCmbViewer.Cmb
                     "Maybe texture 2 -> ID: {5}, Min/Mag filter: {6}/{7}, Wrap mode S/T: {8}/{9}\nNumber of indices into data after last material: 0x{10:X}\n",
                     Stg1TextureID, Stg1TextureMinFilter, Stg1TextureMagFilter, Stg1TextureWrapModeS, Stg1TextureWrapModeT,
                     MaybeStg2TextureID, MaybeStg2TextureMinFilter, MaybeStg2TextureMagFilter, MaybeStg2TextureWrapModeS, MaybeStg2TextureWrapModeT,
-                    NumberOfIndicesToMaterialMore);
+                    NumberOfIndicesToTexEnvStuff);
                 sb.AppendLine();
 
                 return sb.ToString();
@@ -252,7 +254,7 @@ namespace N3DSCmbViewer.Cmb
         }
 
         [System.Diagnostics.DebuggerDisplay("{GetType()}")]
-        public class MaterialMore
+        public class TexEnvStuff
         {
             public const int DataSize = 0x28;
 
@@ -277,7 +279,7 @@ namespace N3DSCmbViewer.Cmb
             public ushort Unknown24 { get; private set; }
             public ushort Unknown26 { get; private set; }
 
-            public MaterialMore(byte[] data, int offset)
+            public TexEnvStuff(byte[] data, int offset)
             {
                 Unknown00 = BitConverter.ToUInt16(data, offset);
                 Unknown02 = BitConverter.ToUInt16(data, offset + 0x02);

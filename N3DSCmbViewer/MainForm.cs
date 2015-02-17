@@ -321,7 +321,6 @@ namespace N3DSCmbViewer
                     PerformFileAction(decData);
                     break;
 
-
                 case FileTypes.ZSI:
                     if (MessageBox.Show("ZSI file selected; look for first cmb file contained within?\n(More than one cmb not supported yet!)", "ZSI", MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
                         System.Windows.Forms.DialogResult.Yes)

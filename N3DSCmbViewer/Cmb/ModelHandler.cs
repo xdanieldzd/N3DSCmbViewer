@@ -277,6 +277,8 @@ namespace N3DSCmbViewer.Cmb
                 SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
                 MatsChunk.Material mat = Root.MatsChunk.Materials[mesh.MaterialID];
 
+                GL.BlendFunc(mat.BlendingFactorSrc, mat.BlendingFactorDest);
+
                 if (Properties.Settings.Default.EnableTextures && Root.TexChunk.Textures.Length > 0)
                 {
                     /* 1st texture stage */
@@ -286,42 +288,21 @@ namespace N3DSCmbViewer.Cmb
                     else
                         GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
 
-                    switch (mat.Stg1TextureMagFilter)
-                    {
-                        case Constants.TextureMinMagFilter.GL_NEAREST: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest); break;
-                        case Constants.TextureMinMagFilter.GL_LINEAR: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear); break;
-                    }
+                    if (mat.Stg1TextureMinFilter != TextureMinFilter.Linear && mat.Stg1TextureMinFilter != TextureMinFilter.Nearest)
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                    else
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)mat.Stg1TextureMinFilter);
 
-                    switch (mat.Stg1TextureMinFilter)
-                    {
-                        case Constants.TextureMinMagFilter.GL_NEAREST:
-                        case Constants.TextureMinMagFilter.GL_NEAREST_MIPMAP_LINEAR:
-                        case Constants.TextureMinMagFilter.GL_NEAREST_MIPMAP_NEAREST:
-                            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-                            break;
-                        case Constants.TextureMinMagFilter.GL_LINEAR:
-                        case Constants.TextureMinMagFilter.GL_LINEAR_MIPMAP_LINEAR:
-                        case Constants.TextureMinMagFilter.GL_LINEAR_MIPMAP_NEAREST:
-                            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                            break;
-                    }
+                    if (mat.Stg1TextureMagFilter != TextureMagFilter.Linear && mat.Stg1TextureMagFilter != TextureMagFilter.Nearest)
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.Stg1TextureMagFilter);
+                    else
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.Stg1TextureMagFilter);
 
                     // EXPERIMENTAL STUFF! -> wrap modes mess up stalfos; alphatest causes some missing textures...?
                     if (false)
                     {
-                        switch (mat.Stg1TextureWrapModeS)
-                        {
-                            case Constants.TextureWrapMode.GL_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat); break;
-                            case Constants.TextureWrapMode.GL_CLAMP_TO_EDGE: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge); break;
-                            case Constants.TextureWrapMode.GL_MIRRORED_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.MirroredRepeat); break;
-                        }
-
-                        switch (mat.Stg1TextureWrapModeT)
-                        {
-                            case Constants.TextureWrapMode.GL_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat); break;
-                            case Constants.TextureWrapMode.GL_CLAMP_TO_EDGE: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge); break;
-                            case Constants.TextureWrapMode.GL_MIRRORED_REPEAT: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.MirroredRepeat); break;
-                        }
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)mat.Stg1TextureWrapModeS);
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)mat.Stg1TextureWrapModeT);
 
                         GL.AlphaFunc(AlphaFunction.Greater, 0.9f);
                         GL.Enable(EnableCap.AlphaTest);
@@ -374,6 +355,8 @@ namespace N3DSCmbViewer.Cmb
                     RenderBuffer(prms);
                 }
             }
+
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
             /* Render wireframe overlay */
             if (Properties.Settings.Default.AddWireframeOverlay && !Properties.Settings.Default.DisableAllShaders)

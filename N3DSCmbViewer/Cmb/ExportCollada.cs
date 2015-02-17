@@ -308,7 +308,7 @@ namespace N3DSCmbViewer.Cmb
                             xw.WriteStartElement("source");
                             xw.WriteAttributeString("id", string.Format("{0}-colors", meshId));
                             {
-                                float[] colorData = ConvertToFloatArray(Constants.DataTypes.GL_UNSIGNED_BYTE, cmbRoot.VatrChunk.Colors, sepd.ColorArrayOffset, sepd.ColorArrayScale);
+                                float[] colorData = ConvertToFloatArray(sepd.ColorArrayDataType, cmbRoot.VatrChunk.Colors, sepd.ColorArrayOffset, sepd.ColorArrayScale);
 
                                 xw.WriteStartElement("float_array");
                                 xw.WriteAttributeString("id", string.Format("{0}-colors-array", meshId));
@@ -439,16 +439,22 @@ namespace N3DSCmbViewer.Cmb
                                     xw.WriteAttributeString("offset", "0");
                                     xw.WriteEndElement();
                                     */
-                                    ushort[] idx = new ushort[prms.PrmChunk.NumberOfIndices];
-                                    if (prms.PrmChunk.DataType == Constants.DataTypes.GL_UNSIGNED_BYTE)
+                                    uint[] idx = new uint[prms.PrmChunk.NumberOfIndices];
+                                    switch (prms.PrmChunk.DataType)
                                     {
-                                        for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
-                                        {
-                                            idx[i] = cmbRoot.Indices[(prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize)];
-                                        }
+                                        case Constants.DataTypes.GL_UNSIGNED_BYTE:
+                                            for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
+                                                idx[i] = (uint)cmbRoot.Indices[(prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize)];
+                                            break;
+                                        case Constants.DataTypes.GL_UNSIGNED_SHORT:
+                                            for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
+                                                idx[i] = (uint)BitConverter.ToUInt16(cmbRoot.Indices, (prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize));
+                                            break;
+                                        case Constants.DataTypes.GL_UNSIGNED_INT:
+                                            for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
+                                                idx[i] = BitConverter.ToUInt32(cmbRoot.Indices, (prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize));
+                                            break;
                                     }
-                                    else
-                                        Buffer.BlockCopy(cmbRoot.Indices, prms.PrmChunk.FirstIndex * sizeof(ushort), idx, 0, prms.PrmChunk.NumberOfIndices * sizeof(ushort));
 
                                     xw.WriteStartElement("p");
                                     {

@@ -35,22 +35,5 @@ namespace N3DSCmbViewer.Cmb
             GL_ETC1_RGB8_NATIVE_DMP = 0x675A,
             GL_ETC1_ALPHA_RGB8_A4_NATIVE_DMP = 0x675B
         };
-
-        public enum TextureMinMagFilter : ushort
-        {
-            GL_NEAREST = 0x2600,
-            GL_LINEAR = 0x2601,
-            GL_NEAREST_MIPMAP_NEAREST = 0x2700,
-            GL_LINEAR_MIPMAP_NEAREST = 0x2701,
-            GL_NEAREST_MIPMAP_LINEAR = 0x2702,
-            GL_LINEAR_MIPMAP_LINEAR = 0x2703
-        };
-
-        public enum TextureWrapMode : ushort
-        {
-            GL_REPEAT = 0x2901,
-            GL_CLAMP_TO_EDGE = 0x812F,
-            GL_MIRRORED_REPEAT = 0x8370
-        };
     }
 }
