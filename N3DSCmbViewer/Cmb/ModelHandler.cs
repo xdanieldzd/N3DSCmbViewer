@@ -277,6 +277,7 @@ namespace N3DSCmbViewer.Cmb
                 SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
                 MatsChunk.Material mat = Root.MatsChunk.Materials[mesh.MaterialID];
 
+                GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(mat.BlendingFactorSrc, mat.BlendingFactorDest);
 
                 if (Properties.Settings.Default.EnableTextures && Root.TexChunk.Textures.Length > 0)
@@ -298,16 +299,12 @@ namespace N3DSCmbViewer.Cmb
                     else
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.Stg1TextureMagFilter);
 
-                    // EXPERIMENTAL STUFF! -> wrap modes mess up stalfos; alphatest causes some missing textures...?
-                    if (false)
-                    {
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)mat.Stg1TextureWrapModeS);
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)mat.Stg1TextureWrapModeT);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)mat.Stg1TextureWrapModeS);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)mat.Stg1TextureWrapModeT);
 
-                        GL.AlphaFunc(AlphaFunction.Greater, 0.9f);
-                        GL.Enable(EnableCap.AlphaTest);
-                        GL.Enable(EnableCap.Blend);
-                    }
+                    GL.Enable(EnableCap.AlphaTest);
+                    /* WRONG! */
+                    GL.AlphaFunc(mat.MaybeAlphaFunction, 0.9f/*((mat.MaybeAlphaUnknown130 >> 8) / 255.0f)*/);
 
                     /* 2nd texture stage (unimplemented) */
                     GL.ActiveTexture(TextureUnit.Texture1);
@@ -356,6 +353,7 @@ namespace N3DSCmbViewer.Cmb
                 }
             }
 
+            GL.Disable(EnableCap.AlphaTest);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
             /* Render wireframe overlay */

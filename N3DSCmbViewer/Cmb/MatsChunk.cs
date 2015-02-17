@@ -132,8 +132,10 @@ namespace N3DSCmbViewer.Cmb
             public float Float11C { get; private set; }
             public uint NumberOfIndicesToTexEnvStuff { get; private set; }    //00000001
             public ushort[] IndicesToTexEnvStuff { get; private set; }
-            public uint Unknown130 { get; private set; }    //02070000
-            public uint Unknown134 { get; private set; }    //02010101
+            public ushort MaybeAlphaUnknown130 { get; private set; }            //0000
+            public AlphaFunction MaybeAlphaFunction { get; private set; }       //0207
+            public ushort MaybeStencilUnknown134 { get; private set; }          //0101
+            public StencilFunction MaybeStencilFunction { get; private set; }   //0201
             public uint Unknown138 { get; private set; }
             public BlendingFactorSrc BlendingFactorSrc { get; private set; }    //0303
             public BlendingFactorDest BlendingFactorDest { get; private set; }    //0302
@@ -223,8 +225,10 @@ namespace N3DSCmbViewer.Cmb
                 NumberOfIndicesToTexEnvStuff = BitConverter.ToUInt32(data, offset + 0x120);
                 IndicesToTexEnvStuff = new ushort[NumberOfIndicesToTexEnvStuff];
                 for (int i = 0; i < IndicesToTexEnvStuff.Length; i++) IndicesToTexEnvStuff[i] = BitConverter.ToUInt16(data, offset + 0x124 + (i * sizeof(ushort)));
-                Unknown130 = BitConverter.ToUInt32(data, offset + 0x130);
-                Unknown134 = BitConverter.ToUInt32(data, offset + 0x134);
+                MaybeAlphaUnknown130 = BitConverter.ToUInt16(data, offset + 0x130);
+                MaybeAlphaFunction = (AlphaFunction)BitConverter.ToUInt16(data, offset + 0x132);
+                MaybeStencilUnknown134 = BitConverter.ToUInt16(data, offset + 0x134);
+                MaybeStencilFunction = (StencilFunction)BitConverter.ToUInt16(data, offset + 0x136);
                 Unknown138 = BitConverter.ToUInt32(data, offset + 0x138);
                 BlendingFactorSrc = (BlendingFactorSrc)BitConverter.ToUInt16(data, offset + 0x13C);
                 BlendingFactorDest = (BlendingFactorDest)BitConverter.ToUInt16(data, offset + 0x13E);
