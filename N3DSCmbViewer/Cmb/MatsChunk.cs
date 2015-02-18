@@ -51,32 +51,40 @@ namespace N3DSCmbViewer.Cmb
             public const int DataSize_OoT = 0x15C;
             public const int DataSize_MM = 0x16C;
 
-            public uint Unknown001 { get; private set; }
+            public short[] TextureIDs { get; private set; }
+            public TextureMinFilter[] TextureMinFilters { get; private set; }
+            public TextureMagFilter[] TextureMagFilters { get; private set; }
+            public TextureWrapMode[] TextureWrapModeSs { get; private set; }
+            public TextureWrapMode[] TextureWrapModeTs { get; private set; }
+
+            public uint Unknown000 { get; private set; }
             public uint Unknown004 { get; private set; }
             public uint Unknown008 { get; private set; }
             public uint Unknown00C { get; private set; }
-            public short Stg1TextureID { get; private set; }
+            //Texture ID 0
             public ushort Unknown012 { get; private set; }
-            public TextureMinFilter Stg1TextureMinFilter { get; private set; }    //2601
-            public TextureMagFilter Stg1TextureMagFilter { get; private set; }    //2601
-            public TextureWrapMode Stg1TextureWrapModeS { get; private set; }    //2901
-            public TextureWrapMode Stg1TextureWrapModeT { get; private set; }    //2901
+            //MinFilter 0
+            //MagFilter 0
+            //WrapModeS 0
+            //WrapModeT 0
             public uint Unknown01C { get; private set; }
             public uint Unknown020 { get; private set; }
             public uint Unknown024 { get; private set; }
-            public uint Unknown026 { get; private set; }
-            public short MaybeStg2TextureID { get; private set; }
+            //Texture ID 1
             public ushort Unknown02A { get; private set; }
-            public TextureMinFilter MaybeStg2TextureMinFilter { get; private set; }
-            public TextureMagFilter MaybeStg2TextureMagFilter { get; private set; }
-            public TextureWrapMode MaybeStg2TextureWrapModeS { get; private set; }
-            public TextureWrapMode MaybeStg2TextureWrapModeT { get; private set; }
+            //MinFilter 1
+            //MagFilter 1
+            //WrapModeS 1
+            //WrapModeT 1
             public uint Unknown034 { get; private set; }
             public uint Unknown038 { get; private set; }
             public uint Unknown03C { get; private set; }
-            public uint Unknown040 { get; private set; }    //0000FFFF
-            public uint Unknown044 { get; private set; }
-            public uint Unknown048 { get; private set; }
+            //Texture ID 2
+            public ushort Unknown042 { get; private set; }
+            //MinFilter 2
+            //MagFilter 2
+            //WrapModeS 2
+            //WrapModeT 2
             public uint Unknown04C { get; private set; }
             public uint Unknown050 { get; private set; }
             public uint Unknown054 { get; private set; }
@@ -149,31 +157,40 @@ namespace N3DSCmbViewer.Cmb
 
             public Material(byte[] data, int offset)
             {
-                Unknown001 = BitConverter.ToUInt32(data, offset);
+                TextureIDs = new short[3];
+                TextureMinFilters = new TextureMinFilter[3];
+                TextureMagFilters = new TextureMagFilter[3];
+                TextureWrapModeSs = new TextureWrapMode[3];
+                TextureWrapModeTs = new TextureWrapMode[3];
+
+                Unknown000 = BitConverter.ToUInt32(data, offset);
                 Unknown004 = BitConverter.ToUInt32(data, offset + 0x004);
                 Unknown008 = BitConverter.ToUInt32(data, offset + 0x008);
                 Unknown00C = BitConverter.ToUInt32(data, offset + 0x00C);
-                Stg1TextureID = BitConverter.ToInt16(data, offset + 0x010);
+                TextureIDs[0] = BitConverter.ToInt16(data, offset + 0x010);
                 Unknown012 = BitConverter.ToUInt16(data, offset + 0x012);
-                Stg1TextureMinFilter = (TextureMinFilter)BitConverter.ToUInt16(data, offset + 0x014);
-                Stg1TextureMagFilter = (TextureMagFilter)BitConverter.ToUInt16(data, offset + 0x016);
-                Stg1TextureWrapModeS = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x018);
-                Stg1TextureWrapModeT = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x01A);
+                TextureMinFilters[0] = (TextureMinFilter)BitConverter.ToUInt16(data, offset + 0x014);
+                TextureMagFilters[0] = (TextureMagFilter)BitConverter.ToUInt16(data, offset + 0x016);
+                TextureWrapModeSs[0] = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x018);
+                TextureWrapModeTs[0] = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x01A);
                 Unknown01C = BitConverter.ToUInt32(data, offset + 0x01C);
                 Unknown020 = BitConverter.ToUInt32(data, offset + 0x020);
                 Unknown024 = BitConverter.ToUInt32(data, offset + 0x024);
-                MaybeStg2TextureID = BitConverter.ToInt16(data, offset + 0x028);
+                TextureIDs[1] = BitConverter.ToInt16(data, offset + 0x028);
                 Unknown02A = BitConverter.ToUInt16(data, offset + 0x02A);
-                MaybeStg2TextureMinFilter = (TextureMinFilter)BitConverter.ToUInt16(data, offset + 0x02C);
-                MaybeStg2TextureMagFilter = (TextureMagFilter)BitConverter.ToUInt16(data, offset + 0x02E);
-                MaybeStg2TextureWrapModeS = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x030);
-                MaybeStg2TextureWrapModeT = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x032);
+                TextureMinFilters[1] = (TextureMinFilter)BitConverter.ToUInt16(data, offset + 0x02C);
+                TextureMagFilters[1] = (TextureMagFilter)BitConverter.ToUInt16(data, offset + 0x02E);
+                TextureWrapModeSs[1] = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x030);
+                TextureWrapModeTs[1] = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x032);
                 Unknown034 = BitConverter.ToUInt32(data, offset + 0x034);
                 Unknown038 = BitConverter.ToUInt32(data, offset + 0x038);
                 Unknown03C = BitConverter.ToUInt32(data, offset + 0x03C);
-                Unknown040 = BitConverter.ToUInt32(data, offset + 0x040);
-                Unknown044 = BitConverter.ToUInt32(data, offset + 0x044);
-                Unknown048 = BitConverter.ToUInt32(data, offset + 0x048);
+                TextureIDs[2] = BitConverter.ToInt16(data, offset + 0x040);
+                Unknown042 = BitConverter.ToUInt16(data, offset + 0x042);
+                TextureMinFilters[2] = (TextureMinFilter)BitConverter.ToUInt16(data, offset + 0x044);
+                TextureMagFilters[2] = (TextureMagFilter)BitConverter.ToUInt16(data, offset + 0x046);
+                TextureWrapModeSs[2] = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x048);
+                TextureWrapModeTs[2] = (TextureWrapMode)BitConverter.ToUInt16(data, offset + 0x04A);
                 Unknown04C = BitConverter.ToUInt32(data, offset + 0x04C);
                 Unknown050 = BitConverter.ToUInt32(data, offset + 0x050);
                 Unknown054 = BitConverter.ToUInt32(data, offset + 0x054);
@@ -246,10 +263,18 @@ namespace N3DSCmbViewer.Cmb
 
                 sb.AppendFormat("-- {0} --\n", this.GetType().Name);
                 sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture,
-                    "WARNING: Too many unknowns for me to bother dumping everything...\nTexture 1 -> ID: {0}, Min/Mag filter: {1}/{2}, Wrap mode S/T: {3}/{4}\n" +
-                    "Maybe texture 2 -> ID: {5}, Min/Mag filter: {6}/{7}, Wrap mode S/T: {8}/{9}\nNumber of indices into data after last material: 0x{10:X}\n",
-                    Stg1TextureID, Stg1TextureMinFilter, Stg1TextureMagFilter, Stg1TextureWrapModeS, Stg1TextureWrapModeT,
-                    MaybeStg2TextureID, MaybeStg2TextureMinFilter, MaybeStg2TextureMagFilter, MaybeStg2TextureWrapModeS, MaybeStg2TextureWrapModeT,
+                    "WARNING: Too many unknowns for me to bother dumping everything...\n" +
+                    "Texture 0 -> ID: {0}, Min/Mag filter: {1}/{2}, Wrap mode S/T: {3}/{4}\n" +
+                    "Texture 1 -> ID: {5}, Min/Mag filter: {6}/{7}, Wrap mode S/T: {8}/{9}\n" +
+                    "Texture 2 -> ID: {10}, Min/Mag filter: {11}/{12}, Wrap mode S/T: {13}/{14}\n" +
+                    "Blend factor source/destination: {15}/{16}\n" +
+                    "Maybe alpha: {17} 0x{18:X}, maybe stencil: {19} 0x{20:X}\n" +
+                    "Number of indices into texenv stuff: 0x{21:X}\n",
+                    TextureIDs[0], TextureMinFilters[0], TextureMagFilters[0], TextureWrapModeSs[0], TextureWrapModeTs[0],
+                    TextureIDs[1], TextureMinFilters[1], TextureMagFilters[1], TextureWrapModeSs[1], TextureWrapModeTs[1],
+                    TextureIDs[2], TextureMinFilters[2], TextureMagFilters[2], TextureWrapModeSs[2], TextureWrapModeTs[2],
+                    BlendingFactorSrc, BlendingFactorDest,
+                    MaybeAlphaFunction, MaybeAlphaUnknown130, MaybeStencilFunction, MaybeStencilUnknown134,
                     NumberOfIndicesToTexEnvStuff);
                 sb.AppendLine();
 

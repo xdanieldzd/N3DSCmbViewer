@@ -192,7 +192,7 @@ namespace N3DSCmbViewer.Cmb
                     xw.WriteStartElement("material");
                     xw.WriteAttributeString("id", string.Format("material-{0:X8}", mat.GetHashCode()));
                     {
-                        TexChunk.Texture tex = cmbRoot.TexChunk.Textures[mat.Stg1TextureID];
+                        TexChunk.Texture tex = cmbRoot.TexChunk.Textures[mat.TextureIDs[0]];
                         xw.WriteStartElement("instance_effect");
                         xw.WriteAttributeString("url", string.Format("#effect-{0}-{1:X8}", tex.Name, tex.GetHashCode()));
                         xw.WriteEndElement();

@@ -10,6 +10,7 @@ varying vec3 normal, halfVector;
 /* Texture sampler */
 uniform sampler2D tex0;
 uniform sampler2D tex1;
+uniform sampler2D tex2;
 
 /* Data from cmb */
 uniform vec4 materialColor;
@@ -45,6 +46,7 @@ void main()
     vec2 textureCoord0 = vec2(gl_TexCoord[0].s, 1.0 - gl_TexCoord[0].t);
     vec4 textureColor0 = texture2D(tex0, textureCoord0);
     vec4 textureColor1 = texture2D(tex1, textureCoord0);
+    vec4 textureColor2 = texture2D(tex2, textureCoord0);
     vec4 textureMixed = textureColor0;   // * textureColor1;
 
     /* Finalize */

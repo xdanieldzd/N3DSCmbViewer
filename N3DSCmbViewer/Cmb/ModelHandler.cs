@@ -22,6 +22,7 @@ namespace N3DSCmbViewer.Cmb
 
         /* For normal rendering */
         int fragmentObject, program;
+        int tex0Location, tex1Location, tex2Location;
         int materialColorLocation;
         int perVertexSkinningLocation, boneIdLocation;
         int vertBoneBufferId, vertBoneTexId;
@@ -125,6 +126,7 @@ namespace N3DSCmbViewer.Cmb
             Disposed = ready = false;
 
             fragmentObject = vertexObject = program = -1;
+            tex0Location = tex1Location = tex2Location = -1;
             materialColorLocation = -1;
 
             perVertexSkinningLocation = boneIdLocation = -1;
@@ -184,9 +186,15 @@ namespace N3DSCmbViewer.Cmb
                 Aglex.GLSL.CreateVertexShader(ref vertexObject, File.Open("general-vs.glsl", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite));
 
                 Aglex.GLSL.CreateProgram(ref program, fragmentObject, vertexObject);
+
+
                 perVertexSkinningLocation = GL.GetUniformLocation(program, "perVertexSkinning");
                 boneIdLocation = GL.GetUniformLocation(program, "boneId");
                 vertBoneSamplerLocation = GL.GetUniformLocation(program, "vertBoneSampler");
+
+                tex0Location = GL.GetUniformLocation(program, "tex0");
+                tex1Location = GL.GetUniformLocation(program, "tex1");
+                tex2Location = GL.GetUniformLocation(program, "tex2");
 
                 materialColorLocation = GL.GetUniformLocation(program, "materialColor");
 
@@ -277,44 +285,13 @@ namespace N3DSCmbViewer.Cmb
                 SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
                 MatsChunk.Material mat = Root.MatsChunk.Materials[mesh.MaterialID];
 
+                /* Blend, Alphatest, etc */
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(mat.BlendingFactorSrc, mat.BlendingFactorDest);
+                GL.Enable(EnableCap.AlphaTest);
+                GL.AlphaFunc(mat.MaybeAlphaFunction, 0.9f/*((mat.MaybeAlphaUnknown130 >> 8) / 255.0f)*/);       /* WRONG! */
 
-                if (Properties.Settings.Default.EnableTextures && Root.TexChunk.Textures.Length > 0)
-                {
-                    /* 1st texture stage */
-                    GL.ActiveTexture(TextureUnit.Texture0);
-                    if (mat.Stg1TextureID != -1)
-                        GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.Stg1TextureID].GLID);
-                    else
-                        GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
-
-                    if (mat.Stg1TextureMinFilter != TextureMinFilter.Linear && mat.Stg1TextureMinFilter != TextureMinFilter.Nearest)
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                    else
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)mat.Stg1TextureMinFilter);
-
-                    if (mat.Stg1TextureMagFilter != TextureMagFilter.Linear && mat.Stg1TextureMagFilter != TextureMagFilter.Nearest)
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.Stg1TextureMagFilter);
-                    else
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.Stg1TextureMagFilter);
-
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)mat.Stg1TextureWrapModeS);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)mat.Stg1TextureWrapModeT);
-
-                    GL.Enable(EnableCap.AlphaTest);
-                    /* WRONG! */
-                    GL.AlphaFunc(mat.MaybeAlphaFunction, 0.9f/*((mat.MaybeAlphaUnknown130 >> 8) / 255.0f)*/);
-
-                    /* 2nd texture stage (unimplemented) */
-                    GL.ActiveTexture(TextureUnit.Texture1);
-                    if (mat.MaybeStg2TextureID != -1)
-                        GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.MaybeStg2TextureID].GLID);
-                    else
-                        GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
-                }
-                else
-                    GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
+                ApplyTextures(mat);
 
                 foreach (PrmsChunk prms in sepd.PrmsChunks)
                 {
@@ -332,6 +309,10 @@ namespace N3DSCmbViewer.Cmb
                     GL.Uniform1(boneIdLocation, 0);
 
                     GL.Uniform1(vertBoneSamplerLocation, 7);
+
+                    GL.Uniform1(tex0Location, 0);
+                    GL.Uniform1(tex1Location, 1);
+                    GL.Uniform1(tex2Location, 2);
 
                     //GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, mat.Float158);
                     GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -435,6 +416,37 @@ namespace N3DSCmbViewer.Cmb
 
             //GL.DrawElements(PrimitiveType.Triangles, prms.PrmChunk.NumberOfIndices, prms.PrmChunk.DrawElementsType, ref Root.Indices[prms.PrmChunk.FirstIndex * prms.PrmChunk.ElementSize]);
             //GL.DrawElements(PrimitiveType.Triangles, prms.PrmChunk.NumberOfIndices, prms.PrmChunk.DrawElementsType, ref Root.Indices[prms.PrmChunk.FirstIndex * sizeof(ushort)]);
+        }
+
+        private void ApplyTextures(MatsChunk.Material mat)
+        {
+            if (Properties.Settings.Default.EnableTextures && Root.TexChunk.Textures.Length > 0)
+            {
+                /* Texture stages */
+                for (int i = 0; i < 3; i++)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    if (mat.TextureIDs[i] != -1)
+                        GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.TextureIDs[i]].GLID);
+                    else
+                        GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
+
+                    if (mat.TextureMinFilters[i] != TextureMinFilter.Linear && mat.TextureMinFilters[i] != TextureMinFilter.Nearest)
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                    else
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)mat.TextureMinFilters[i]);
+
+                    if (mat.TextureMagFilters[i] != TextureMagFilter.Linear && mat.TextureMagFilters[i] != TextureMagFilter.Nearest)
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.TextureMagFilters[i]);
+                    else
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.TextureMagFilters[i]);
+
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)mat.TextureWrapModeSs[i]);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)mat.TextureWrapModeTs[i]);
+                }
+            }
+            else
+                GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
         }
 
         private void PrepareBoneInformation(SepdChunk sepd, PrmsChunk prms)
