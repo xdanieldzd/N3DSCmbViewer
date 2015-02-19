@@ -96,6 +96,35 @@ namespace N3DSCmbViewer.Cmb
         {
             xw.WriteStartElement("library_effects");
             {
+                string defaultID = "effect-default";
+
+                xw.WriteStartElement("effect");
+                xw.WriteAttributeString("id", defaultID);
+                xw.WriteAttributeString("name", defaultID);
+                {
+                    xw.WriteStartElement("profile_COMMON");
+                    {
+                        xw.WriteStartElement("technique");
+                        xw.WriteAttributeString("sid", "COMMON");
+                        {
+                            xw.WriteStartElement("phong");
+                            {
+                                xw.WriteStartElement("diffuse");
+                                {
+                                    xw.WriteStartElement("color");
+                                    xw.WriteString("1.0 1.0 1.0 1.0");
+                                    xw.WriteEndElement();
+                                }
+                                xw.WriteEndElement();
+                            }
+                            xw.WriteEndElement();
+                        }
+                        xw.WriteEndElement();
+                    }
+                    xw.WriteEndElement();
+                }
+                xw.WriteEndElement();
+
                 foreach (TexChunk.Texture tex in cmbRoot.TexChunk.Textures)
                 {
                     string effectID = string.Format("effect-{0}-{1:X8}", tex.Name, tex.GetHashCode());
@@ -192,9 +221,15 @@ namespace N3DSCmbViewer.Cmb
                     xw.WriteStartElement("material");
                     xw.WriteAttributeString("id", string.Format("material-{0:X8}", mat.GetHashCode()));
                     {
-                        TexChunk.Texture tex = cmbRoot.TexChunk.Textures[mat.TextureIDs[0]];
                         xw.WriteStartElement("instance_effect");
-                        xw.WriteAttributeString("url", string.Format("#effect-{0}-{1:X8}", tex.Name, tex.GetHashCode()));
+                        if (mat.TextureIDs[0] != -1)
+                        {
+                            TexChunk.Texture tex = cmbRoot.TexChunk.Textures[mat.TextureIDs[0]];
+                            xw.WriteAttributeString("url", string.Format("#effect-{0}-{1:X8}", tex.Name, tex.GetHashCode()));
+                        }
+                        else
+                            xw.WriteAttributeString("url", "#effect-default");
+
                         xw.WriteEndElement();
                     }
                     xw.WriteEndElement();
