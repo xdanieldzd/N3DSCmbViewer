@@ -185,7 +185,7 @@ namespace N3DSCmbViewer
                         if (modelFile != null && !modelFile.Disposed)
                         {
                             print.Print(new OpenTK.Vector2d(16.0, 16.0), hudBackColor,
-                                string.Format("Filename: {0}, Model name: {1}\nBones: {2}, Materials: {3}, Textures: {4}, Primitives: {5}\nVertices: {6}, Normals: {7}, Colors: {8}, Texture coords: {9}",
+                                string.Format("Filename: {0}\nModel name: {1}\nBones: {2}, Materials: {3}, Textures: {4}, Primitives: {5}\nVertices: {6}, Normals: {7}, Colors: {8}, Texture coords: {9}",
                                 Path.GetFileName(modelFile.Filename), modelFile.Root.CmbName,
                                 modelFile.Root.SklChunk.BoneCount, modelFile.Root.MatsChunk.MaterialCount, modelFile.Root.TexChunk.TextureCount, modelFile.Root.TotalPrimitives,
                                 modelFile.Root.TotalVertices, modelFile.Root.TotalNormals, modelFile.Root.TotalColors, modelFile.Root.TotalTexCoords));

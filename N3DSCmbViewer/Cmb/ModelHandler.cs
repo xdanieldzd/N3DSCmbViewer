@@ -27,7 +27,6 @@ namespace N3DSCmbViewer.Cmb
         int perVertexSkinningLocation, boneIdLocation;
         int vertBoneBufferId, vertBoneTexId;
         int vertBoneSamplerLocation;
-        int elementArrayBufferId;
 
         /* Component scaling */
         int vertexScaleLocation;
@@ -45,6 +44,11 @@ namespace N3DSCmbViewer.Cmb
         int perVertexSkinningLocationOverlay, boneIdLocationOverlay;
         int vertBoneSamplerLocationOverlay;
         int vertexScaleLocationOverlay;
+        int enableSkeletalStuffLocationOverlay;
+
+        /* Buffer caches */
+        Dictionary<SepdChunk, int> vertexBufferObjects, normalBufferObjects, colorBufferObjects, texCoordBufferObjects;
+        Dictionary<PrmsChunk, int> elementBufferObjects;
 
         public string Filename { get; set; }
         public byte[] Data { get; private set; }
@@ -114,7 +118,16 @@ namespace N3DSCmbViewer.Cmb
                     if (GL.IsBuffer(vertBoneBufferId)) GL.DeleteBuffer(vertBoneBufferId);
                     if (GL.IsTexture(vertBoneTexId)) GL.DeleteTexture(vertBoneTexId);
 
-                    if (GL.IsBuffer(elementArrayBufferId)) GL.DeleteBuffer(elementArrayBufferId);
+                    foreach (KeyValuePair<SepdChunk, int> bufferObject in vertexBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                        GL.DeleteBuffer(bufferObject.Value);
+                    foreach (KeyValuePair<SepdChunk, int> bufferObject in normalBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                        GL.DeleteBuffer(bufferObject.Value);
+                    foreach (KeyValuePair<SepdChunk, int> bufferObject in colorBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                        GL.DeleteBuffer(bufferObject.Value);
+                    foreach (KeyValuePair<SepdChunk, int> bufferObject in texCoordBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                        GL.DeleteBuffer(bufferObject.Value);
+                    foreach (KeyValuePair<PrmsChunk, int> bufferObject in elementBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                        GL.DeleteBuffer(bufferObject.Value);
                 }
 
                 Disposed = true;
@@ -144,6 +157,7 @@ namespace N3DSCmbViewer.Cmb
             perVertexSkinningLocationOverlay = boneIdLocationOverlay = -1;
             vertBoneSamplerLocationOverlay = -1;
             vertexScaleLocationOverlay = -1;
+            enableSkeletalStuffLocationOverlay = -1;
 
             Root = new CmbChunk(Data, 0, null);
         }
@@ -187,7 +201,6 @@ namespace N3DSCmbViewer.Cmb
 
                 Aglex.GLSL.CreateProgram(ref program, fragmentObject, vertexObject);
 
-
                 perVertexSkinningLocation = GL.GetUniformLocation(program, "perVertexSkinning");
                 boneIdLocation = GL.GetUniformLocation(program, "boneId");
                 vertBoneSamplerLocation = GL.GetUniformLocation(program, "vertBoneSampler");
@@ -210,6 +223,7 @@ namespace N3DSCmbViewer.Cmb
                 perVertexSkinningLocationOverlay = GL.GetUniformLocation(programOverlay, "perVertexSkinning");
                 boneIdLocationOverlay = GL.GetUniformLocation(programOverlay, "boneId");
                 vertBoneSamplerLocationOverlay = GL.GetUniformLocation(programOverlay, "vertBoneSampler");
+                enableSkeletalStuffLocationOverlay = GL.GetUniformLocation(programOverlay, "enableSkeletalStuff");
             }
 
             if (vertBoneBufferId == -1)
@@ -228,10 +242,125 @@ namespace N3DSCmbViewer.Cmb
                 GL.BindBuffer(BufferTarget.TextureBuffer, 0);
             }
 
-            elementArrayBufferId = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementArrayBufferId);
+            if (vertexBufferObjects == null) PrepareBuffers();
 
             ready = true;
+        }
+
+        private void PrepareBuffers()
+        {
+            vertexBufferObjects = new Dictionary<SepdChunk, int>();
+            normalBufferObjects = new Dictionary<SepdChunk, int>();
+            colorBufferObjects = new Dictionary<SepdChunk, int>();
+            texCoordBufferObjects = new Dictionary<SepdChunk, int>();
+            elementBufferObjects = new Dictionary<PrmsChunk, int>();
+
+            foreach (MshsChunk.Mesh mesh in Root.SklmChunk.MshsChunk.Meshes)
+            {
+                int size, expectedSize;
+
+                SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
+
+                if (Root.VatrChunk.Vertices.Length > 0)
+                {
+                    int newVertexBuffer = GL.GenBuffer();
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, newVertexBuffer);
+                    if (sepd.VertexArrayDataType == Constants.DataTypes.Byte || sepd.VertexArrayDataType == Constants.DataTypes.UnsignedByte)
+                    {
+                        short[] converted = new short[Root.VatrChunk.Vertices.Length];
+                        expectedSize = (converted.Length * sizeof(ushort));
+                        for (int i = 0; i < Root.VatrChunk.Vertices.Length; i++) converted[i] = Root.VatrChunk.Vertices[i];
+                        GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(expectedSize), ref converted[sepd.VertexArrayOffset], BufferUsageHint.StaticDraw);
+                    }
+                    else
+                    {
+                        expectedSize = (int)(Root.VatrChunk.Vertices.Length - sepd.VertexArrayOffset);
+                        GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(expectedSize), ref Root.VatrChunk.Vertices[sepd.VertexArrayOffset], BufferUsageHint.StaticDraw);
+                    }
+
+                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out size);
+                    if (size != expectedSize) throw new ApplicationException(string.Format("Problem uploading vertices to VBO; tried {0} bytes, uploaded {1}", expectedSize, size));
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+                    vertexBufferObjects.Add(sepd, newVertexBuffer);
+                }
+
+                if (Root.VatrChunk.Normals.Length > 0)
+                {
+                    int newNormalBuffer = GL.GenBuffer();
+
+                    expectedSize = (int)(Root.VatrChunk.Normals.Length - sepd.NormalArrayOffset);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, newNormalBuffer);
+                    GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(expectedSize), ref Root.VatrChunk.Normals[sepd.NormalArrayOffset], BufferUsageHint.StaticDraw);
+
+                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out size);
+                    if (size != expectedSize) throw new ApplicationException(string.Format("Problem uploading normals to VBO; tried {0} bytes, uploaded {1}", expectedSize, size));
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+                    normalBufferObjects.Add(sepd, newNormalBuffer);
+                }
+
+                if (Root.VatrChunk.Colors.Length > 0)
+                {
+                    int newColorBuffer = GL.GenBuffer();
+
+                    expectedSize = (int)(Root.VatrChunk.Colors.Length - sepd.ColorArrayOffset);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, newColorBuffer);
+                    GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(expectedSize), ref Root.VatrChunk.Colors[sepd.ColorArrayOffset], BufferUsageHint.StaticDraw);
+
+                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out size);
+                    if (size != expectedSize) throw new ApplicationException(string.Format("Problem uploading colors to VBO; tried {0} bytes, uploaded {1}", expectedSize, size));
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+                    colorBufferObjects.Add(sepd, newColorBuffer);
+                }
+
+                if (Root.VatrChunk.TextureCoords.Length > 0)
+                {
+                    int newTexCoordBuffer = GL.GenBuffer();
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, newTexCoordBuffer);
+                    if (sepd.TextureCoordArrayDataType == Constants.DataTypes.Byte || sepd.TextureCoordArrayDataType == Constants.DataTypes.UnsignedByte)
+                    {
+                        short[] converted = new short[Root.VatrChunk.TextureCoords.Length];
+                        expectedSize = (converted.Length * sizeof(ushort));
+                        for (int i = 0; i < Root.VatrChunk.TextureCoords.Length; i++) converted[i] = Root.VatrChunk.TextureCoords[i];
+                        GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(expectedSize), ref converted[sepd.TextureCoordArrayOffset], BufferUsageHint.StaticDraw);
+                    }
+                    else
+                    {
+                        expectedSize = (int)(Root.VatrChunk.TextureCoords.Length - sepd.TextureCoordArrayOffset);
+                        GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(expectedSize), ref Root.VatrChunk.TextureCoords[sepd.TextureCoordArrayOffset], BufferUsageHint.StaticDraw);
+                    }
+
+                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out size);
+                    if (size != expectedSize) throw new ApplicationException(string.Format("Problem uploading texcoords to VBO; tried {0} bytes, uploaded {1}", expectedSize, size));
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+                    texCoordBufferObjects.Add(sepd, newTexCoordBuffer);
+                }
+
+                foreach (PrmsChunk prms in sepd.PrmsChunks)
+                {
+                    int newElementBuffer = GL.GenBuffer();
+
+                    expectedSize = (prms.PrmChunk.NumberOfIndices * prms.PrmChunk.ElementSize);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, newElementBuffer);
+                    GL.BufferData(BufferTarget.ElementArrayBuffer, new IntPtr(expectedSize), ref Root.Indices[prms.PrmChunk.FirstIndex * sizeof(ushort)], BufferUsageHint.StaticDraw);
+
+                    GL.GetBufferParameter(BufferTarget.ElementArrayBuffer, BufferParameterName.BufferSize, out size);
+                    if (size != expectedSize) throw new ApplicationException(string.Format("Problem uploading indices to VBO; tried {0} bytes, uploaded {1}", expectedSize, size));
+
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+                    elementBufferObjects.Add(prms, newElementBuffer);
+                }
+            }
         }
 
         /*
@@ -293,49 +422,47 @@ namespace N3DSCmbViewer.Cmb
 
                 ApplyTextures(mat);
 
+                GL.DisableClientState(ArrayCap.NormalArray);
+                GL.DisableClientState(ArrayCap.ColorArray);
+                GL.DisableClientState(ArrayCap.TextureCoordArray);
+                GL.DisableClientState(ArrayCap.VertexArray);
+
+                SetupNormalArray(sepd);
+                SetupColorArray(sepd);
+                SetupTextureCoordArray(sepd);
+                SetupVertexArray(sepd);
+
+                GL.Uniform1(boneIdLocation, 0);
+
+                GL.Uniform1(vertBoneSamplerLocation, 7);
+
+                GL.Uniform1(tex0Location, 0);
+                GL.Uniform1(tex1Location, 1);
+                GL.Uniform1(tex2Location, 2);
+
+                //GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, mat.Float158);
+                GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
+
+                GL.Uniform1(vertexScaleLocation, sepd.VertexArrayScale);
+                GL.Uniform1(texCoordScaleLocation, sepd.TextureCoordArrayScale);
+                GL.Uniform1(normalScaleLocation, sepd.NormalArrayScale);
+
+                GL.Uniform1(disableAlphaLocation, Convert.ToInt16(Properties.Settings.Default.DisableAlpha));
+                GL.Uniform1(enableLightingLocation, Convert.ToInt16(Properties.Settings.Default.EnableLighting));
+                GL.Uniform1(enableSkeletalStuffLocation, Convert.ToInt16(Properties.Settings.Default.EnableSkeletalStuff));
+
                 foreach (PrmsChunk prms in sepd.PrmsChunks)
                 {
-                    // TODO TODO FIXME ->>> convert from vertex arrays to VBOs!!!
-
-
-                    GL.DisableClientState(ArrayCap.NormalArray);
-                    GL.DisableClientState(ArrayCap.ColorArray);
-                    GL.DisableClientState(ArrayCap.TextureCoordArray);
-                    GL.DisableClientState(ArrayCap.VertexArray);
-
                     PrepareBoneInformation(sepd, prms);
-
                     GL.Uniform1(perVertexSkinningLocation, Convert.ToInt16(prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone));
-                    GL.Uniform1(boneIdLocation, 0);
-
-                    GL.Uniform1(vertBoneSamplerLocation, 7);
-
-                    GL.Uniform1(tex0Location, 0);
-                    GL.Uniform1(tex1Location, 1);
-                    GL.Uniform1(tex2Location, 2);
-
-                    //GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, mat.Float158);
-                    GL.Uniform4(materialColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
-
-                    GL.Uniform1(vertexScaleLocation, sepd.VertexArrayScale);
-                    GL.Uniform1(texCoordScaleLocation, sepd.TextureCoordArrayScale);
-                    GL.Uniform1(normalScaleLocation, sepd.NormalArrayScale);
-
-                    GL.Uniform1(disableAlphaLocation, Convert.ToInt16(Properties.Settings.Default.DisableAlpha));
-                    GL.Uniform1(enableLightingLocation, Convert.ToInt16(Properties.Settings.Default.EnableLighting));
-                    GL.Uniform1(enableSkeletalStuffLocation, Convert.ToInt16(Properties.Settings.Default.EnableSkeletalStuff));
-
-                    SetupNormalArray(sepd);
-                    SetupColorArray(sepd);
-                    SetupTextureCoordArray(sepd);
-                    SetupVertexArray(sepd);
-
                     RenderBuffer(prms);
                 }
-            }
 
-            GL.Disable(EnableCap.AlphaTest);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                GL.DisableClientState(ArrayCap.NormalArray);
+                GL.DisableClientState(ArrayCap.ColorArray);
+                GL.DisableClientState(ArrayCap.TextureCoordArray);
+                GL.DisableClientState(ArrayCap.VertexArray);
+            }
 
             /* Render wireframe overlay */
             if (Properties.Settings.Default.AddWireframeOverlay && !Properties.Settings.Default.DisableAllShaders)
@@ -350,28 +477,35 @@ namespace N3DSCmbViewer.Cmb
                     GL.Enable(EnableCap.Blend);
                     GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-                    GL.DisableClientState(ArrayCap.NormalArray);
-                    GL.DisableClientState(ArrayCap.ColorArray);
-                    GL.DisableClientState(ArrayCap.TextureCoordArray);
-
                     SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
                     GL.Uniform1(vertexScaleLocationOverlay, sepd.VertexArrayScale);
+                    GL.Uniform1(enableSkeletalStuffLocationOverlay, Convert.ToInt16(Properties.Settings.Default.EnableSkeletalStuff));
+
+                    SetupVertexArray(sepd);
+
+                    GL.Uniform1(boneIdLocationOverlay, 0);
+                    GL.Uniform1(vertBoneSamplerLocationOverlay, 7);
 
                     foreach (PrmsChunk prms in sepd.PrmsChunks)
                     {
                         PrepareBoneInformation(sepd, prms);
-
                         GL.Uniform1(perVertexSkinningLocationOverlay, Convert.ToInt16(prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone));
-                        GL.Uniform1(boneIdLocationOverlay, 0);
-
-                        GL.Uniform1(vertBoneSamplerLocationOverlay, 7);
-
-                        SetupVertexArray(sepd);
-
                         RenderBuffer(prms);
                     }
+
+                    GL.DisableClientState(ArrayCap.NormalArray);
+                    GL.DisableClientState(ArrayCap.ColorArray);
+                    GL.DisableClientState(ArrayCap.TextureCoordArray);
+                    GL.DisableClientState(ArrayCap.VertexArray);
                 }
             }
+
+            /* Reset stuff */
+            GL.Disable(EnableCap.AlphaTest);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
             /* Render skeleton */
             //if (false)
@@ -405,17 +539,9 @@ namespace N3DSCmbViewer.Cmb
 
         private void RenderBuffer(PrmsChunk prms)
         {
-            /* S-L-O-W-! */
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementArrayBufferId);
-            int size = (prms.PrmChunk.NumberOfIndices * prms.PrmChunk.ElementSize);
-            //GL.BufferData(BufferTarget.ElementArrayBuffer, new IntPtr(size), ref Root.Indices[prms.PrmChunk.FirstIndex * prms.PrmChunk.ElementSize], BufferUsageHint.StaticDraw);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, new IntPtr(size), ref Root.Indices[prms.PrmChunk.FirstIndex * sizeof(ushort)], BufferUsageHint.StaticDraw);
-            GL.GetBufferParameter(BufferTarget.ElementArrayBuffer, BufferParameterName.BufferSize, out size);
-            GL.DrawElements(PrimitiveType.Triangles, size / prms.PrmChunk.ElementSize, prms.PrmChunk.DrawElementsType, IntPtr.Zero);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObjects[prms]);
+            GL.DrawElements(PrimitiveType.Triangles, prms.PrmChunk.NumberOfIndices, prms.PrmChunk.DrawElementsType, IntPtr.Zero);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-            //GL.DrawElements(PrimitiveType.Triangles, prms.PrmChunk.NumberOfIndices, prms.PrmChunk.DrawElementsType, ref Root.Indices[prms.PrmChunk.FirstIndex * prms.PrmChunk.ElementSize]);
-            //GL.DrawElements(PrimitiveType.Triangles, prms.PrmChunk.NumberOfIndices, prms.PrmChunk.DrawElementsType, ref Root.Indices[prms.PrmChunk.FirstIndex * sizeof(ushort)]);
         }
 
         private void ApplyTextures(MatsChunk.Material mat)
@@ -427,22 +553,24 @@ namespace N3DSCmbViewer.Cmb
                 {
                     GL.ActiveTexture(TextureUnit.Texture0 + i);
                     if (mat.TextureIDs[i] != -1)
+                    {
                         GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.TextureIDs[i]].GLID);
+
+                        if (mat.TextureMinFilters[i] != TextureMinFilter.Linear && mat.TextureMinFilters[i] != TextureMinFilter.Nearest)
+                            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                        else
+                            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)mat.TextureMinFilters[i]);
+
+                        if (mat.TextureMagFilters[i] != TextureMagFilter.Linear && mat.TextureMagFilters[i] != TextureMagFilter.Nearest)
+                            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.TextureMagFilters[i]);
+                        else
+                            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.TextureMagFilters[i]);
+
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)mat.TextureWrapModeSs[i]);
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)mat.TextureWrapModeTs[i]);
+                    }
                     else
                         GL.BindTexture(TextureTarget.Texture2D, emptyTexture);
-
-                    if (mat.TextureMinFilters[i] != TextureMinFilter.Linear && mat.TextureMinFilters[i] != TextureMinFilter.Nearest)
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                    else
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)mat.TextureMinFilters[i]);
-
-                    if (mat.TextureMagFilters[i] != TextureMagFilter.Linear && mat.TextureMagFilters[i] != TextureMagFilter.Nearest)
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.TextureMagFilters[i]);
-                    else
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)mat.TextureMagFilters[i]);
-
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)mat.TextureWrapModeSs[i]);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)mat.TextureWrapModeTs[i]);
                 }
             }
             else
@@ -503,52 +631,43 @@ namespace N3DSCmbViewer.Cmb
 
         private void SetupNormalArray(SepdChunk sepd)
         {
-            if (Root.VatrChunk.Normals.Length > 0)
-            {
-                GL.EnableClientState(ArrayCap.NormalArray);
-                GL.NormalPointer(sepd.NormalPointerType, 0, ref Root.VatrChunk.Normals[sepd.NormalArrayOffset]);
-            }
+            if (!normalBufferObjects.ContainsKey(sepd)) return;
+
+            GL.EnableClientState(ArrayCap.NormalArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, normalBufferObjects[sepd]);
+            GL.NormalPointer(sepd.NormalPointerType, 0, IntPtr.Zero);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
         private void SetupColorArray(SepdChunk sepd)
         {
-            if (Root.VatrChunk.Colors.Length > 0)
-            {
-                GL.EnableClientState(ArrayCap.ColorArray);
-                GL.ColorPointer(4, sepd.ColorPointerType, 0, ref Root.VatrChunk.Colors[sepd.ColorArrayOffset]);
-            }
+            if (!colorBufferObjects.ContainsKey(sepd)) return;
+
+            GL.EnableClientState(ArrayCap.ColorArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, colorBufferObjects[sepd]);
+            GL.ColorPointer(4, sepd.ColorPointerType, 0, IntPtr.Zero);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
         private void SetupTextureCoordArray(SepdChunk sepd)
         {
-            if (Root.VatrChunk.TextureCoords.Length > 0)
-            {
-                GL.EnableClientState(ArrayCap.TextureCoordArray);
-                if (sepd.TextureCoordArrayDataType == Constants.DataTypes.Byte || sepd.TextureCoordArrayDataType == Constants.DataTypes.UnsignedByte)
-                {
-                    short[] converted = new short[Root.VatrChunk.TextureCoords.Length];
-                    for (int i = 0; i < Root.VatrChunk.TextureCoords.Length; i++) converted[i] = Root.VatrChunk.TextureCoords[i];
-                    GL.TexCoordPointer(2, sepd.TexCoordPointerType, 0, ref converted[sepd.TextureCoordArrayOffset]);
-                }
-                else
-                    GL.TexCoordPointer(2, sepd.TexCoordPointerType, 0, ref Root.VatrChunk.TextureCoords[sepd.TextureCoordArrayOffset]);
-            }
+            if (!texCoordBufferObjects.ContainsKey(sepd)) return;
+
+            GL.EnableClientState(ArrayCap.TextureCoordArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, texCoordBufferObjects[sepd]);
+            GL.TexCoordPointer(2, sepd.TexCoordPointerType, 0, IntPtr.Zero);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
         }
 
         private void SetupVertexArray(SepdChunk sepd)
         {
-            if (Root.VatrChunk.Vertices.Length > 0)
-            {
-                GL.EnableClientState(ArrayCap.VertexArray);
-                if (sepd.VertexArrayDataType == Constants.DataTypes.Byte || sepd.VertexArrayDataType == Constants.DataTypes.UnsignedByte)
-                {
-                    short[] converted = new short[Root.VatrChunk.Vertices.Length];
-                    for (int i = 0; i < Root.VatrChunk.Vertices.Length; i++) converted[i] = Root.VatrChunk.Vertices[i];
-                    GL.VertexPointer(3, sepd.VertexPointerType, 0, ref converted[sepd.VertexArrayOffset]);
-                }
-                else
-                    GL.VertexPointer(3, sepd.VertexPointerType, 0, ref Root.VatrChunk.Vertices[sepd.VertexArrayOffset]);
-            }
+            if (!vertexBufferObjects.ContainsKey(sepd)) return;
+
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObjects[sepd]);
+            GL.VertexPointer(3, sepd.VertexPointerType, 0, IntPtr.Zero);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
     }
 }
