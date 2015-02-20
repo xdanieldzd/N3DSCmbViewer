@@ -3,6 +3,11 @@ N3DSCmbViewer
 
 A model viewer for The Legend of Zelda: Ocarina of Time 3D and Majora's Mask 3D, written in C#.
 
+Documentation
+=============
+
+A spreadsheet with links to documentation about OoT3D and MM3D, maintained by members of the #zelda IRC channel on BadnikNET, [can be found here](http://tinyurl.com/zelda-resource).
+
 Warning
 =======
 
