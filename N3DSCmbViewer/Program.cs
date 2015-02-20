@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace N3DSCmbViewer
 {
     static class Program
     {
-        public static string Description = System.Reflection.Assembly.GetExecutingAssembly().GetAttribute<System.Reflection.AssemblyDescriptionAttribute>().Description;
+        public static string Description = string.Format("{0} v{1}",
+            Assembly.GetExecutingAssembly().GetAttribute<AssemblyDescriptionAttribute>().Description,
+            new Version(Assembly.GetExecutingAssembly().GetAttribute<AssemblyFileVersionAttribute>().Version).ToString(3));
 
         [STAThread]
         static void Main()

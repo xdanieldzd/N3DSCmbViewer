@@ -363,11 +363,6 @@ namespace N3DSCmbViewer.Cmb
             }
         }
 
-        /*
-         * The function where the "magic" happens... or alternatively, where any programmer with actual experience will shake their collective heads!! :DD
-         * No seriously, if anyone decides to improve upon this project, you better fix this piece of shit function here.
-         * Part of that requires more research - array formats etc. -, part just not being a lazy fuck like me
-         */
         public void Render(short meshToRender, Csab.AnimHandler animHandler = null)
         {
             if (Disposed) throw new ObjectDisposedException(string.Format("{0} was disposed", this.GetType().Name));
@@ -410,9 +405,11 @@ namespace N3DSCmbViewer.Cmb
             {
                 if (mesh.SepdID > Root.SklmChunk.ShpChunk.SepdChunks.Length) continue;
                 if (mesh.MaterialID > Root.MatsChunk.Materials.Length) continue;
+                if (mesh.MaterialID > Root.MatsChunk.TexEnvStuffs.Length) continue;
 
                 SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
                 MatsChunk.Material mat = Root.MatsChunk.Materials[mesh.MaterialID];
+                MatsChunk.TexEnvStuff tenv = Root.MatsChunk.TexEnvStuffs[mesh.MaterialID];
 
                 /* Blend, Alphatest, etc */
                 GL.Enable(EnableCap.Blend);
@@ -420,8 +417,10 @@ namespace N3DSCmbViewer.Cmb
                 GL.Enable(EnableCap.AlphaTest);
                 GL.AlphaFunc(mat.MaybeAlphaFunction, 0.9f/*((mat.MaybeAlphaUnknown130 >> 8) / 255.0f)*/);       /* WRONG! */
 
+                /* Apply textures :P */
                 ApplyTextures(mat);
 
+                /* Setup component arrays */
                 GL.DisableClientState(ArrayCap.NormalArray);
                 GL.DisableClientState(ArrayCap.ColorArray);
                 GL.DisableClientState(ArrayCap.TextureCoordArray);
@@ -432,6 +431,7 @@ namespace N3DSCmbViewer.Cmb
                 SetupTextureCoordArray(sepd);
                 SetupVertexArray(sepd);
 
+                /* Send stuff to shader */
                 GL.Uniform1(boneIdLocation, 0);
 
                 GL.Uniform1(vertBoneSamplerLocation, 7);
@@ -451,6 +451,7 @@ namespace N3DSCmbViewer.Cmb
                 GL.Uniform1(enableLightingLocation, Convert.ToInt16(Properties.Settings.Default.EnableLighting));
                 GL.Uniform1(enableSkeletalStuffLocation, Convert.ToInt16(Properties.Settings.Default.EnableSkeletalStuff));
 
+                /* Render each prms chunk */
                 foreach (PrmsChunk prms in sepd.PrmsChunks)
                 {
                     PrepareBoneInformation(sepd, prms);
@@ -458,6 +459,7 @@ namespace N3DSCmbViewer.Cmb
                     RenderBuffer(prms);
                 }
 
+                /* Clean up arrays */
                 GL.DisableClientState(ArrayCap.NormalArray);
                 GL.DisableClientState(ArrayCap.ColorArray);
                 GL.DisableClientState(ArrayCap.TextureCoordArray);
@@ -554,6 +556,7 @@ namespace N3DSCmbViewer.Cmb
                     GL.ActiveTexture(TextureUnit.Texture0 + i);
                     if (mat.TextureIDs[i] != -1)
                     {
+                        /* Bind texture & set parameters */
                         GL.BindTexture(TextureTarget.Texture2D, Root.TexChunk.Textures[mat.TextureIDs[i]].GLID);
 
                         if (mat.TextureMinFilters[i] != TextureMinFilter.Linear && mat.TextureMinFilters[i] != TextureMinFilter.Nearest)

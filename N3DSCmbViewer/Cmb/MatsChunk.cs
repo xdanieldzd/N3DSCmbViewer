@@ -138,8 +138,8 @@ namespace N3DSCmbViewer.Cmb
             public float Float114 { get; private set; }
             public uint Unknown118 { get; private set; }    //62A0FF01
             public float Float11C { get; private set; }
-            public uint NumberOfIndicesToTexEnvStuff { get; private set; }    //00000001
-            public ushort[] IndicesToTexEnvStuff { get; private set; }
+            public uint NumberOfIndicesToUnknown { get; private set; }    //00000001
+            public ushort[] IndicesToUnknown { get; private set; }
             public ushort MaybeAlphaUnknown130 { get; private set; }            //0000
             public AlphaFunction MaybeAlphaFunction { get; private set; }       //0207
             public ushort MaybeStencilUnknown134 { get; private set; }          //0101
@@ -154,6 +154,15 @@ namespace N3DSCmbViewer.Cmb
             public uint Unknown150 { get; private set; }
             public uint Unknown154 { get; private set; }
             public float Float158 { get; private set; }
+
+            //MM3D
+            public ushort Unknown15C { get; private set; }
+            public ushort Unknown15E { get; private set; }
+            public ushort Unknown160 { get; private set; }
+            public ushort Unknown162 { get; private set; }
+            public ushort Unknown164 { get; private set; }
+            public ushort Unknown166 { get; private set; }
+            public uint Unknown168 { get; private set; }
 
             public Material(byte[] data, int offset)
             {
@@ -239,9 +248,9 @@ namespace N3DSCmbViewer.Cmb
                 Float114 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x114)), 0);
                 Unknown118 = BitConverter.ToUInt32(data, offset + 0x118);
                 Float11C = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x11C)), 0);
-                NumberOfIndicesToTexEnvStuff = BitConverter.ToUInt32(data, offset + 0x120);
-                IndicesToTexEnvStuff = new ushort[NumberOfIndicesToTexEnvStuff];
-                for (int i = 0; i < IndicesToTexEnvStuff.Length; i++) IndicesToTexEnvStuff[i] = BitConverter.ToUInt16(data, offset + 0x124 + (i * sizeof(ushort)));
+                NumberOfIndicesToUnknown = BitConverter.ToUInt32(data, offset + 0x120);
+                IndicesToUnknown = new ushort[NumberOfIndicesToUnknown];
+                for (int i = 0; i < IndicesToUnknown.Length; i++) IndicesToUnknown[i] = BitConverter.ToUInt16(data, offset + 0x124 + (i * sizeof(ushort)));
                 MaybeAlphaUnknown130 = BitConverter.ToUInt16(data, offset + 0x130);
                 MaybeAlphaFunction = (AlphaFunction)BitConverter.ToUInt16(data, offset + 0x132);
                 MaybeStencilUnknown134 = BitConverter.ToUInt16(data, offset + 0x134);
@@ -255,6 +264,17 @@ namespace N3DSCmbViewer.Cmb
                 Unknown150 = BitConverter.ToUInt32(data, offset + 0x150);
                 Unknown154 = BitConverter.ToUInt32(data, offset + 0x154);
                 Float158 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x158)), 0);
+
+                if (BaseCTRChunk.IsMajora3D)
+                {
+                    Unknown15C = BitConverter.ToUInt16(data, offset + 0x15C);
+                    Unknown15E = BitConverter.ToUInt16(data, offset + 0x15E);
+                    Unknown160 = BitConverter.ToUInt16(data, offset + 0x160);
+                    Unknown162 = BitConverter.ToUInt16(data, offset + 0x162);
+                    Unknown164 = BitConverter.ToUInt16(data, offset + 0x164);
+                    Unknown166 = BitConverter.ToUInt16(data, offset + 0x166);
+                    Unknown168 = BitConverter.ToUInt32(data, offset + 0x168);
+                }
             }
 
             public override string ToString()
@@ -268,14 +288,12 @@ namespace N3DSCmbViewer.Cmb
                     "Texture 1 -> ID: {5}, Min/Mag filter: {6}/{7}, Wrap mode S/T: {8}/{9}\n" +
                     "Texture 2 -> ID: {10}, Min/Mag filter: {11}/{12}, Wrap mode S/T: {13}/{14}\n" +
                     "Blend factor source/destination: {15}/{16}\n" +
-                    "Maybe alpha: {17} 0x{18:X}, maybe stencil: {19} 0x{20:X}\n" +
-                    "Number of indices into texenv stuff: 0x{21:X}\n",
+                    "Maybe alpha: {17} 0x{18:X}, maybe stencil: {19} 0x{20:X}\n",
                     TextureIDs[0], TextureMinFilters[0], TextureMagFilters[0], TextureWrapModeSs[0], TextureWrapModeTs[0],
                     TextureIDs[1], TextureMinFilters[1], TextureMagFilters[1], TextureWrapModeSs[1], TextureWrapModeTs[1],
                     TextureIDs[2], TextureMinFilters[2], TextureMagFilters[2], TextureWrapModeSs[2], TextureWrapModeTs[2],
                     BlendingFactorSrc, BlendingFactorDest,
-                    MaybeAlphaFunction, MaybeAlphaUnknown130, MaybeStencilFunction, MaybeStencilUnknown134,
-                    NumberOfIndicesToTexEnvStuff);
+                    MaybeAlphaFunction, MaybeAlphaUnknown130, MaybeStencilFunction, MaybeStencilUnknown134);
                 sb.AppendLine();
 
                 return sb.ToString();
