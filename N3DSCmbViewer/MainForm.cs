@@ -123,14 +123,6 @@ namespace N3DSCmbViewer
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            // TEMP TEMP
-            //modelFile = new ModelHandler(@"E:\- 3DS OoT Hacking -\saria.cmb");
-            /*ExportCollada.Export(@"E:\- 3DS OoT Hacking -\collada\hf\spot00_00.dae", modelFile.Root);
-            modelFile.Root.TexChunk.LoadTextures();
-            foreach (TexChunk.Texture tex in modelFile.Root.TexChunk.Textures) tex.TexImage.Save(@"E:\- 3DS OoT Hacking -\collada\hf\" + tex.Name + "_" + tex.DataOffset.ToString("X") + ".png", System.Drawing.Imaging.ImageFormat.Png);
-            */
-            // TEMP TEMP
-
             MessageBox.Show(
                 "This is a buggy test build; the main reason for it to exist is to let #zelda play around with the MM3D support.\n\nThere WILL be glitches, broken functionality, etc., etc.\n\nYou have been warned.",
                 "Hi #zelda", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -245,7 +237,10 @@ namespace N3DSCmbViewer
             else if (e.KeyCode == Keys.Back)
             {
                 // TEST TEMP TODO FIXME HACK
-                modelFile.Root.SklChunk.Bones.LastOrDefault().RotationX += 0.05f;
+                modelFile.Root.SklChunk.Bones[0].Rotation = new OpenTK.Vector3(
+                    modelFile.Root.SklChunk.Bones[0].Rotation.X + 0.05f,
+                    modelFile.Root.SklChunk.Bones[0].Rotation.Y,
+                    modelFile.Root.SklChunk.Bones[0].Rotation.Z);
             }
             // TEST TEMP TODO FIXME HACK
         }

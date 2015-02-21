@@ -140,7 +140,7 @@ namespace N3DSCmbViewer.Cmb
             public float Float11C { get; private set; }
             public uint NumberOfIndicesToUnknown { get; private set; }    //00000001
             public ushort[] IndicesToUnknown { get; private set; }
-            public ushort MaybeAlphaUnknown130 { get; private set; }            //0000
+            public ushort MaybeAlphaReference { get; private set; }            //0000
             public AlphaFunction MaybeAlphaFunction { get; private set; }       //0207
             public ushort MaybeStencilUnknown134 { get; private set; }          //0101
             public StencilFunction MaybeStencilFunction { get; private set; }   //0201
@@ -153,7 +153,7 @@ namespace N3DSCmbViewer.Cmb
             public uint Unknown14C { get; private set; }
             public uint Unknown150 { get; private set; }
             public uint Unknown154 { get; private set; }
-            public float Float158 { get; private set; }
+            public float BlendColorA { get; private set; }
 
             //MM3D
             public ushort Unknown15C { get; private set; }
@@ -204,20 +204,20 @@ namespace N3DSCmbViewer.Cmb
                 Unknown050 = BitConverter.ToUInt32(data, offset + 0x050);
                 Unknown054 = BitConverter.ToUInt32(data, offset + 0x054);
                 Unknown058 = BitConverter.ToUInt32(data, offset + 0x058);
-                Float05C = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x05C)), 0);
-                Float060 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x060)), 0);
+                Float05C = BitConverter.ToSingle(data, offset + 0x05C);
+                Float060 = BitConverter.ToSingle(data, offset + 0x060);
                 Unknown064 = BitConverter.ToUInt32(data, offset + 0x064);
                 Unknown068 = BitConverter.ToUInt32(data, offset + 0x068);
                 Unknown06C = BitConverter.ToUInt32(data, offset + 0x06C);
                 Unknown070 = BitConverter.ToUInt32(data, offset + 0x070);
-                Float074 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x074)), 0);
-                Float078 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x078)), 0);
+                Float074 = BitConverter.ToSingle(data, offset + 0x074);
+                Float078 = BitConverter.ToSingle(data, offset + 0x078);
                 Unknown07C = BitConverter.ToUInt32(data, offset + 0x07C);
                 Unknown080 = BitConverter.ToUInt32(data, offset + 0x080);
                 Unknown084 = BitConverter.ToUInt32(data, offset + 0x084);
                 Unknown088 = BitConverter.ToUInt32(data, offset + 0x088);
-                Float08C = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x08C)), 0);
-                Float090 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x090)), 0);
+                Float08C = BitConverter.ToSingle(data, offset + 0x08C);
+                Float090 = BitConverter.ToSingle(data, offset + 0x090);
                 Unknown094 = BitConverter.ToUInt32(data, offset + 0x094);
                 Unknown098 = BitConverter.ToUInt32(data, offset + 0x098);
                 Unknown09C = BitConverter.ToUInt32(data, offset + 0x09C);
@@ -235,23 +235,23 @@ namespace N3DSCmbViewer.Cmb
                 Unknown0CC = BitConverter.ToUInt32(data, offset + 0x0CC);
                 Unknown0D0 = BitConverter.ToUInt32(data, offset + 0x0D0);
                 Unknown0D4 = BitConverter.ToUInt32(data, offset + 0x0D4);
-                Float0D8 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x0D8)), 0);
+                Float0D8 = BitConverter.ToSingle(data, offset + 0x0D8);
                 Unknown0F0 = BitConverter.ToUInt32(data, offset + 0x0F0);
-                Float0F4 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x0F4)), 0);
+                Float0F4 = BitConverter.ToSingle(data, offset + 0x0F4);
                 Unknown0F8 = BitConverter.ToUInt32(data, offset + 0x0F8);
-                Float0FC = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x0FC)), 0);
+                Float0FC = BitConverter.ToSingle(data, offset + 0x0FC);
                 Unknown100 = BitConverter.ToUInt32(data, offset + 0x100);
-                Float104 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x104)), 0);
+                Float104 = BitConverter.ToSingle(data, offset + 0x104);
                 Unknown108 = BitConverter.ToUInt32(data, offset + 0x108);
-                Float10C = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x10C)), 0);
+                Float10C = BitConverter.ToSingle(data, offset + 0x10C);
                 Unknown110 = BitConverter.ToUInt32(data, offset + 0x110);
-                Float114 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x114)), 0);
+                Float114 = BitConverter.ToSingle(data, offset + 0x114);
                 Unknown118 = BitConverter.ToUInt32(data, offset + 0x118);
-                Float11C = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x11C)), 0);
+                Float11C = BitConverter.ToSingle(data, offset + 0x11C);
                 NumberOfIndicesToUnknown = BitConverter.ToUInt32(data, offset + 0x120);
                 IndicesToUnknown = new ushort[NumberOfIndicesToUnknown];
                 for (int i = 0; i < IndicesToUnknown.Length; i++) IndicesToUnknown[i] = BitConverter.ToUInt16(data, offset + 0x124 + (i * sizeof(ushort)));
-                MaybeAlphaUnknown130 = BitConverter.ToUInt16(data, offset + 0x130);
+                MaybeAlphaReference = BitConverter.ToUInt16(data, offset + 0x130);
                 MaybeAlphaFunction = (AlphaFunction)BitConverter.ToUInt16(data, offset + 0x132);
                 MaybeStencilUnknown134 = BitConverter.ToUInt16(data, offset + 0x134);
                 MaybeStencilFunction = (StencilFunction)BitConverter.ToUInt16(data, offset + 0x136);
@@ -263,7 +263,7 @@ namespace N3DSCmbViewer.Cmb
                 Unknown148 = BitConverter.ToUInt32(data, offset + 0x148);
                 Unknown150 = BitConverter.ToUInt32(data, offset + 0x150);
                 Unknown154 = BitConverter.ToUInt32(data, offset + 0x154);
-                Float158 = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x158)), 0);
+                BlendColorA = BitConverter.ToSingle(data, offset + 0x158);
 
                 if (BaseCTRChunk.IsMajora3D)
                 {
@@ -293,7 +293,7 @@ namespace N3DSCmbViewer.Cmb
                     TextureIDs[1], TextureMinFilters[1], TextureMagFilters[1], TextureWrapModeSs[1], TextureWrapModeTs[1],
                     TextureIDs[2], TextureMinFilters[2], TextureMagFilters[2], TextureWrapModeSs[2], TextureWrapModeTs[2],
                     BlendingFactorSrc, BlendingFactorDest,
-                    MaybeAlphaFunction, MaybeAlphaUnknown130, MaybeStencilFunction, MaybeStencilUnknown134);
+                    MaybeAlphaFunction, MaybeAlphaReference, MaybeStencilFunction, MaybeStencilUnknown134);
                 sb.AppendLine();
 
                 return sb.ToString();

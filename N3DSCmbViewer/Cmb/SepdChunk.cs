@@ -101,7 +101,7 @@ namespace N3DSCmbViewer.Cmb
             for (int i = 0; i < arrayCount; i++)
             {
                 ArrayOffsets[i] = BitConverter.ToUInt32(ChunkData, 0x24 + (i * 0x1C));
-                ArrayScales[i] = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(ChunkData, 0x28 + (i * 0x1C))), 0);
+                ArrayScales[i] = BitConverter.ToSingle(ChunkData, 0x28 + (i * 0x1C));
                 ArrayDataTypes[i] = (Constants.DataTypes)BitConverter.ToUInt16(ChunkData, 0x2C + (i * 0x1C));
                 ArrayUnknown1[i] = BitConverter.ToUInt16(ChunkData, 0x2E + (i * 0x1C));
                 ArrayUnknown2[i] = BitConverter.ToUInt32(ChunkData, 0x30 + (i * 0x1C));

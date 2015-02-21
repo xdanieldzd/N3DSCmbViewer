@@ -53,15 +53,9 @@ namespace N3DSCmbViewer.Cmb
             public byte Unknown1 { get; private set; }
             public byte ParentBoneID { get; private set; }
             public byte Unknown2 { get; private set; }
-            public float ScaleX { get; set; }
-            public float ScaleY { get; set; }
-            public float ScaleZ { get; set; }
-            public float RotationX { get; set; }
-            public float RotationY { get; set; }
-            public float RotationZ { get; set; }
-            public float TranslationX { get; set; }
-            public float TranslationY { get; set; }
-            public float TranslationZ { get; set; }
+            public Vector3 Scale { get; set; }
+            public Vector3 Rotation { get; set; }
+            public Vector3 Translation { get; set; }
 
             public uint UnknownMM { get; set; }
 
@@ -73,15 +67,18 @@ namespace N3DSCmbViewer.Cmb
                 Unknown1 = data[offset + 0x1];
                 ParentBoneID = data[offset + 0x2];
                 Unknown2 = data[offset + 0x3];
-                ScaleX = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x4)), 0);
-                ScaleY = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x8)), 0);
-                ScaleZ = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0xC)), 0);
-                RotationX = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x10)), 0);
-                RotationY = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x14)), 0);
-                RotationZ = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x18)), 0);
-                TranslationX = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x1C)), 0);
-                TranslationY = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x20)), 0);
-                TranslationZ = BitConverter.ToSingle(BitConverter.GetBytes(BitConverter.ToUInt32(data, offset + 0x24)), 0);
+                Scale = new Vector3(
+                    BitConverter.ToSingle(data, offset + 0x4),
+                    BitConverter.ToSingle(data, offset + 0x8),
+                    BitConverter.ToSingle(data, offset + 0xC));
+                Rotation = new Vector3(
+                    BitConverter.ToSingle(data, offset + 0x10),
+                    BitConverter.ToSingle(data, offset + 0x14),
+                    BitConverter.ToSingle(data, offset + 0x18));
+                Translation = new Vector3(
+                    BitConverter.ToSingle(data, offset + 0x1C),
+                    BitConverter.ToSingle(data, offset + 0x20),
+                    BitConverter.ToSingle(data, offset + 0x24));
 
                 if (BaseCTRChunk.IsMajora3D)
                     UnknownMM = BitConverter.ToUInt32(data, offset + 0x28);
@@ -94,7 +91,7 @@ namespace N3DSCmbViewer.Cmb
                 sb.AppendFormat("-- {0} --\n", this.GetType().Name);
                 sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture,
                     "Bone ID: 0x{0:X}, Parent bone ID: 0x{1:X}\nScale XYZ: {2}, {3}, {4}\nRotation XYZ: {5}, {6}, {7}\nTranslation XYZ: {8}, {9}, {10}\n",
-                    BoneID, ParentBoneID, ScaleX, ScaleY, ScaleZ, RotationX, RotationY, RotationZ, TranslationX, TranslationY, TranslationZ);
+                    BoneID, ParentBoneID, Scale.X, Scale.Y, Scale.Z, Rotation.X, Rotation.Y, Rotation.Z, Translation.X, Translation.Y, Translation.Z);
                 sb.AppendLine();
 
                 return sb.ToString();
@@ -103,11 +100,11 @@ namespace N3DSCmbViewer.Cmb
             public Matrix4 GetMatrix(bool useTrans)
             {
                 Matrix4 matrix = Matrix4.Identity;
-                matrix *= Matrix4.CreateScale(ScaleX, ScaleY, ScaleZ);
-                matrix *= Matrix4.CreateRotationX(RotationX);
-                matrix *= Matrix4.CreateRotationY(RotationY);
-                matrix *= Matrix4.CreateRotationZ(RotationZ);
-                if (useTrans) matrix *= Matrix4.CreateTranslation(TranslationX, TranslationY, TranslationZ);
+                matrix *= Matrix4.CreateScale(Scale);
+                matrix *= Matrix4.CreateRotationX(Rotation.X);
+                matrix *= Matrix4.CreateRotationY(Rotation.Y);
+                matrix *= Matrix4.CreateRotationZ(Rotation.Z);
+                if (useTrans) matrix *= Matrix4.CreateTranslation(Translation);
 
                 if (ParentBone != null) matrix *= ParentBone.GetMatrix(useTrans);
 

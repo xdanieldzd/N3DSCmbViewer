@@ -43,10 +43,10 @@ void main()
     
     if(enableSkeletalStuff)
     {
-        int lookupId = int(texelFetchBuffer(vertBoneSampler, gl_VertexID).r);
+        uint lookupId = uint(texelFetchBuffer(vertBoneSampler, gl_VertexID).r);
         if(perVertexSkinning)
         {
-            /* Per vertex OR per vertex, no translation*/
+            /* Per vertex OR per vertex, no translation */
             tempMatrix = boneMatrix[lookupId];
         }
         else
@@ -57,7 +57,7 @@ void main()
     }
     
     /* Vertex positioning */
-    vec4 vertex = vec4(gl_ModelViewMatrix * (tempMatrix * (gl_Vertex * vertexScale)));
+    vec4 vertex = vec4(gl_ModelViewMatrix * (tempMatrix * (vec4(gl_Vertex.xyz, 1.0) * vertexScale)));
     vertexPosition = gl_ProjectionMatrix * vertex;
     
     /* Finalize */
