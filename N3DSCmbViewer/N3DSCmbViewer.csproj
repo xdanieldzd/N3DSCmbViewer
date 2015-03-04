@@ -88,6 +88,7 @@
     </Compile>
     <Compile Include="Win32.cs" />
     <Compile Include="ArchiveFile.cs" />
+    <Compile Include="ZSI\ZSIHandler.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

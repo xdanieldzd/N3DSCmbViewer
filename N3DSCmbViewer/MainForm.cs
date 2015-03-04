@@ -14,6 +14,7 @@ using Aglex;
 
 using N3DSCmbViewer.Cmb;
 using N3DSCmbViewer.Csab;
+using N3DSCmbViewer.ZSI;
 
 namespace N3DSCmbViewer
 {
@@ -29,6 +30,7 @@ namespace N3DSCmbViewer
         ArchiveFile archiveFile;
         ModelHandler modelFile;
         AnimHandler animFile;
+        ZSIHandler zsiFile;
         short meshToRender;
         bool renderError;
 
@@ -150,6 +152,11 @@ namespace N3DSCmbViewer
                 }
             }
 
+            if (zsiFile != null && !zsiFile.Disposed && !renderError)
+            {
+                zsiFile.RenderActors();
+            }
+
             if (Properties.Settings.Default.EnableHUD)
             {
                 GL.AlphaFunc(AlphaFunction.Always, 0.0f);
@@ -262,6 +269,7 @@ namespace N3DSCmbViewer
 
                 if (modelFile != null) modelFile.Dispose();
                 if (animFile != null) animFile.Dispose();
+                if (zsiFile != null) zsiFile.Dispose();
 
                 if (archiveFile != null) archiveFile = null;
                 treeViewEx1.Nodes.Clear();
@@ -317,26 +325,10 @@ namespace N3DSCmbViewer
                     break;
 
                 case FileTypes.ZSI:
-                    if (MessageBox.Show("ZSI file selected; look for first cmb file contained within?\n(More than one cmb not supported yet!)", "ZSI", MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
-                        System.Windows.Forms.DialogResult.Yes)
-                    {
-                        string id = string.Empty;
-                        for (int i = 0; i < fileData.Length - 16; i += 4)
-                        {
-                            id = Encoding.ASCII.GetString(fileData, i, 4);
-                            if (fileTypeDict.ContainsKey(id) && fileTypeDict[id] == FileTypes.cmb)
-                            {
-                                modelFile = new ModelHandler(fileData, i, BitConverter.ToInt32(fileData, i + 4));
-                                modelFile.Filename = Properties.Settings.Default.LastFile;
-                                treeViewEx1.Nodes.Add(new TreeNode(Path.GetFileName(Properties.Settings.Default.LastFile)) { ImageKey = "default" });
-
-                                AddSepdChunksToTree(treeViewEx1, treeViewEx1.TopNode);
-                                break;
-                            }
-                        }
-
-                        if (modelFile == null) MessageBox.Show("No cmb file found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    treeViewEx1.Nodes.Add(new TreeNode(Path.GetFileName(Properties.Settings.Default.LastFile)) { ImageKey = "default" });
+                    zsiFile = new ZSIHandler(fileData, 0, fileData.Length);
+                    modelFile = zsiFile.Model;
+                    AddZsiDataToTree(treeViewEx1, treeViewEx1.TopNode);
                     break;
             }
         }
@@ -511,9 +503,14 @@ namespace N3DSCmbViewer
                 // assume mesh number
                 meshToRender = (short)e.Node.Tag;
             }
+            else if (e.Node.Tag is ZSIHandler.Actor)
+            {
+                zsiFile.SelectedActor = (e.Node.Tag as ZSIHandler.Actor);
+            }
             else if (e.Node.Tag == null)
             {
                 meshToRender = -1;
+                if (zsiFile != null) zsiFile.SelectedActor = null;
             }
         }
 
@@ -531,6 +528,19 @@ namespace N3DSCmbViewer
                 }
                 cmbNode.Expand();
             }
+        }
+
+        private void AddZsiDataToTree(TreeView treeView, TreeNode zsiNode)
+        {
+            TreeNode actorNode = new TreeNode("Room Actors");
+            for (int i = 0; i < zsiFile.Actors.Count; i++)
+            {
+                actorNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4})", i, zsiFile.Actors[i].Number)) { Tag = zsiFile.Actors[i], ImageKey = "default", SelectedImageKey = "default" });
+            }
+            actorNode.Expand();
+
+            zsiNode.Nodes.Add(actorNode);
+            zsiNode.Expand();
         }
 
         private void extractAllToolStripMenuItem_Click(object sender, EventArgs e)

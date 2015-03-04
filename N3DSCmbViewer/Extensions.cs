@@ -32,6 +32,11 @@ namespace N3DSCmbViewer
                 (value & 0x00FF0000U) >> 8 | (value & 0xFF000000U) >> 24;
         }
 
+        public static ulong Reverse(this ulong value)
+        {
+            return ((ulong)Reverse((uint)(value & 0xFFFFFFFF)) << 32 | (ulong)Reverse((uint)(value >> 32)));
+        }
+
         public static float[] RGBAToFloats(this uint value)
         {
             float[] vals = new float[4];
