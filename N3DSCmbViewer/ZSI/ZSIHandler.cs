@@ -17,7 +17,8 @@ namespace N3DSCmbViewer.ZSI
     {
         public bool Disposed { get; private set; }
 
-        public const string FileTag = "ZSI\x01";
+        public const string FileTag_OoT = "ZSI\x01";
+        public const string FileTag_MM = "ZSI\x09";
         public const uint CommandsOffset = 0x10;
         public const ulong EndHeaderCommand = 0x1400000000000000;
 
@@ -81,8 +82,8 @@ namespace N3DSCmbViewer.ZSI
             Disposed = false;
 
             Tag = Encoding.ASCII.GetString(Data, 0, 4);
-            if (Tag != FileTag)
-                throw new Exception(string.Format("Trying to read chunk with tag '{0}' as {1}, expected tag '{2}'", Tag, this.GetType().Name, FileTag));
+            if (Tag != FileTag_OoT && Tag != FileTag_MM)
+                throw new Exception(string.Format("Trying to read chunk with tag '{0}' as {1}, expected tag '{2}' OR '{3}'", Tag, this.GetType().Name, FileTag_OoT, FileTag_MM));
 
             CodenameString = Encoding.ASCII.GetString(Data, 4, 12).TrimEnd('\0');
 
