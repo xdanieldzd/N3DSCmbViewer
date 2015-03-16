@@ -120,16 +120,21 @@ namespace N3DSCmbViewer.Cmb
                     if (GL.IsBuffer(vertBoneBufferId)) GL.DeleteBuffer(vertBoneBufferId);
                     if (GL.IsTexture(vertBoneTexId)) GL.DeleteTexture(vertBoneTexId);
 
-                    foreach (KeyValuePair<SepdChunk, int> bufferObject in vertexBufferObjects.Where(x => GL.IsBuffer(x.Value)))
-                        GL.DeleteBuffer(bufferObject.Value);
-                    foreach (KeyValuePair<SepdChunk, int> bufferObject in normalBufferObjects.Where(x => GL.IsBuffer(x.Value)))
-                        GL.DeleteBuffer(bufferObject.Value);
-                    foreach (KeyValuePair<SepdChunk, int> bufferObject in colorBufferObjects.Where(x => GL.IsBuffer(x.Value)))
-                        GL.DeleteBuffer(bufferObject.Value);
-                    foreach (KeyValuePair<SepdChunk, int> bufferObject in texCoordBufferObjects.Where(x => GL.IsBuffer(x.Value)))
-                        GL.DeleteBuffer(bufferObject.Value);
-                    foreach (KeyValuePair<PrmsChunk, int> bufferObject in elementBufferObjects.Where(x => GL.IsBuffer(x.Value)))
-                        GL.DeleteBuffer(bufferObject.Value);
+                    if (vertexBufferObjects != null)
+                        foreach (KeyValuePair<SepdChunk, int> bufferObject in vertexBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                            GL.DeleteBuffer(bufferObject.Value);
+                    if (normalBufferObjects != null)
+                        foreach (KeyValuePair<SepdChunk, int> bufferObject in normalBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                            GL.DeleteBuffer(bufferObject.Value);
+                    if (colorBufferObjects != null)
+                        foreach (KeyValuePair<SepdChunk, int> bufferObject in colorBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                            GL.DeleteBuffer(bufferObject.Value);
+                    if (texCoordBufferObjects != null)
+                        foreach (KeyValuePair<SepdChunk, int> bufferObject in texCoordBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                            GL.DeleteBuffer(bufferObject.Value);
+                    if (elementBufferObjects != null)
+                        foreach (KeyValuePair<PrmsChunk, int> bufferObject in elementBufferObjects.Where(x => GL.IsBuffer(x.Value)))
+                            GL.DeleteBuffer(bufferObject.Value);
                 }
 
                 Disposed = true;

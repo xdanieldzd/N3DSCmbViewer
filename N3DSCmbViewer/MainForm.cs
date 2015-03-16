@@ -154,7 +154,7 @@ namespace N3DSCmbViewer
 
             if (zsiFile != null && !zsiFile.Disposed && !renderError)
             {
-                zsiFile.RenderActors();
+                if (zsiFile.SelectedSetup != null) zsiFile.SelectedSetup.RenderActors();
             }
 
             if (Properties.Settings.Default.EnableHUD)
@@ -327,7 +327,7 @@ namespace N3DSCmbViewer
                 case FileTypes.ZSI:
                     treeViewEx1.Nodes.Add(new TreeNode(Path.GetFileName(Properties.Settings.Default.LastFile)) { ImageKey = "default" });
                     zsiFile = new ZSIHandler(fileData, 0, fileData.Length);
-                    modelFile = zsiFile.Model;
+                    if (zsiFile.SelectedSetup != null) modelFile = zsiFile.SelectedSetup.Model;
                     AddZsiDataToTree(treeViewEx1, treeViewEx1.TopNode);
                     break;
             }
@@ -503,14 +503,19 @@ namespace N3DSCmbViewer
                 // assume mesh number
                 meshToRender = (short)e.Node.Tag;
             }
-            else if (e.Node.Tag is ZSIHandler.Actor)
+            else if (e.Node.Tag is Setup)
             {
-                zsiFile.SelectedActor = (e.Node.Tag as ZSIHandler.Actor);
+                zsiFile.SelectedSetup = (e.Node.Tag as Setup);
+            }
+            else if (e.Node.Tag is Actor)
+            {
+                if (zsiFile.SelectedSetup != null)
+                    zsiFile.SelectedSetup.SelectedActor = (e.Node.Tag as Actor);
             }
             else if (e.Node.Tag == null)
             {
                 meshToRender = -1;
-                if (zsiFile != null) zsiFile.SelectedActor = null;
+                if (zsiFile != null) zsiFile.SelectedSetup = null;
             }
         }
 
@@ -532,14 +537,27 @@ namespace N3DSCmbViewer
 
         private void AddZsiDataToTree(TreeView treeView, TreeNode zsiNode)
         {
-            TreeNode actorNode = new TreeNode("Room Actors");
-            for (int i = 0; i < zsiFile.Actors.Count; i++)
+            TreeNode setupsNode = new TreeNode("Room Setups");
+            for (int i = 0; i < zsiFile.Setups.Count; i++)
             {
-                actorNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4})", i, zsiFile.Actors[i].Number)) { Tag = zsiFile.Actors[i], ImageKey = "default", SelectedImageKey = "default" });
-            }
-            actorNode.Expand();
+                Setup setup = zsiFile.Setups[i];
+                TreeNode setupNode = new TreeNode(string.Format("Setup #{0} (0x{1:X6})", i, setup.Offset)) { Tag = setup, ImageKey = "default", SelectedImageKey = "default" };
 
-            zsiNode.Nodes.Add(actorNode);
+                if (setup.Actors.Count != 0)
+                {
+                    TreeNode actorsNode = new TreeNode("Room Actors") { Tag = setup };
+                    for (int j = 0; j < setup.Actors.Count; j++)
+                    {
+                        actorsNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4})", j, setup.Actors[j].Number)) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
+                    }
+                    setupNode.Nodes.Add(actorsNode);
+                }
+
+                setupsNode.Nodes.Add(setupNode);
+            }
+            setupsNode.Expand();
+
+            zsiNode.Nodes.Add(setupsNode);
             zsiNode.Expand();
         }
 
