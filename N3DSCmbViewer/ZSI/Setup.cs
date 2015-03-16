@@ -51,6 +51,9 @@ namespace N3DSCmbViewer.ZSI
                         uint meshHeaderOffset = (((uint)(command & 0xFFFFFFFF)).Reverse() + ZSIHandler.CommandsOffset);
                         byte meshType = data[meshHeaderOffset];
                         byte meshCount = data[meshHeaderOffset + 1];
+
+                        if (meshCount == 0) break;
+
                         uint meshEntryStart = BitConverter.ToUInt32(data, (int)(meshHeaderOffset + 4)) + ZSIHandler.CommandsOffset;
                         uint meshEntryEnd = BitConverter.ToUInt32(data, (int)(meshHeaderOffset + 8)) + ZSIHandler.CommandsOffset;
 
