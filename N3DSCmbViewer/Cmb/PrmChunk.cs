@@ -17,7 +17,7 @@ namespace N3DSCmbViewer.Cmb
 
         public uint Unknown1 { get; private set; }
         public uint Unknown2 { get; private set; }
-        public Constants.DataTypes DataType { get; private set; }
+        public Constants.PicaDataType DataType { get; private set; }
         public ushort NumberOfIndices { get; private set; }
         public ushort FirstIndex { get; private set; }
 
@@ -29,7 +29,7 @@ namespace N3DSCmbViewer.Cmb
         {
             Unknown1 = BitConverter.ToUInt32(ChunkData, 0x8);
             Unknown2 = BitConverter.ToUInt32(ChunkData, 0xC);
-            DataType = (Constants.DataTypes)BitConverter.ToUInt32(ChunkData, 0x10);
+            DataType = (Constants.PicaDataType)BitConverter.ToUInt32(ChunkData, 0x10);
             NumberOfIndices = BitConverter.ToUInt16(ChunkData, 0x14);
             FirstIndex = BitConverter.ToUInt16(ChunkData, 0x16);
 
@@ -38,15 +38,15 @@ namespace N3DSCmbViewer.Cmb
 
             switch (DataType)
             {
-                case Constants.DataTypes.UnsignedByte:
+                case Constants.PicaDataType.UnsignedByte:
                     DrawElementsType = DrawElementsType.UnsignedByte;
                     ElementSize = sizeof(byte);
                     break;
-                case Constants.DataTypes.UnsignedShort:
+                case Constants.PicaDataType.UnsignedShort:
                     DrawElementsType = DrawElementsType.UnsignedShort;
                     ElementSize = sizeof(short);
                     break;
-                case Constants.DataTypes.UnsignedInt:
+                case Constants.PicaDataType.UnsignedInt:
                     DrawElementsType = DrawElementsType.UnsignedInt;
                     ElementSize = sizeof(int);
                     break;

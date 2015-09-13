@@ -27,7 +27,7 @@ namespace N3DSCmbViewer.Cmb
             Bones = new Bone[BoneCount];
             for (int i = 0; i < Bones.Length; i++) Bones[i] = new Bone(ChunkData, 0x10 + (i * (BaseCTRChunk.IsMajora3D ? Bone.DataSize_MM : Bone.DataSize_OoT)));
 
-            foreach (Bone bone in Bones.Where(x => x.ParentBoneID != byte.MaxValue)) bone.ParentBone = Bones.FirstOrDefault(x => x.BoneID == bone.ParentBoneID);
+            foreach (Bone bone in Bones.Where(x => x.ParentBoneID != -1)) bone.ParentBone = Bones.FirstOrDefault(x => x.BoneID == bone.ParentBoneID);
         }
 
         public override string ToString()
@@ -49,9 +49,9 @@ namespace N3DSCmbViewer.Cmb
             public const int DataSize_OoT = 0x28;
             public const int DataSize_MM = 0x2C;
 
-            public byte BoneID { get; private set; }
+            public sbyte BoneID { get; private set; }
             public byte Unknown1 { get; private set; }
-            public byte ParentBoneID { get; private set; }
+            public sbyte ParentBoneID { get; private set; }
             public byte Unknown2 { get; private set; }
             public Vector3 Scale { get; set; }
             public Vector3 Rotation { get; set; }
@@ -63,9 +63,9 @@ namespace N3DSCmbViewer.Cmb
 
             public Bone(byte[] data, int offset)
             {
-                BoneID = data[offset + 0x0];
+                BoneID = (sbyte)data[offset + 0x0];
                 Unknown1 = data[offset + 0x1];
-                ParentBoneID = data[offset + 0x2];
+                ParentBoneID = (sbyte)data[offset + 0x2];
                 Unknown2 = data[offset + 0x3];
                 Scale = new Vector3(
                     BitConverter.ToSingle(data, offset + 0x4),
@@ -90,7 +90,7 @@ namespace N3DSCmbViewer.Cmb
 
                 sb.AppendFormat("-- {0} --\n", this.GetType().Name);
                 sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture,
-                    "Bone ID: 0x{0:X}, Parent bone ID: 0x{1:X}\nScale XYZ: {2}, {3}, {4}\nRotation XYZ: {5}, {6}, {7}\nTranslation XYZ: {8}, {9}, {10}\n",
+                    "Bone ID: {0}, Parent bone ID: {1}\nScale XYZ: {2}, {3}, {4}\nRotation XYZ: {5}, {6}, {7}\nTranslation XYZ: {8}, {9}, {10}\n",
                     BoneID, ParentBoneID, Scale.X, Scale.Y, Scale.Z, Rotation.X, Rotation.Y, Rotation.Z, Translation.X, Translation.Y, Translation.Z);
                 sb.AppendLine();
 

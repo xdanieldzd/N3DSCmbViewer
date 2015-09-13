@@ -477,15 +477,15 @@ namespace N3DSCmbViewer.Cmb
                                     uint[] idx = new uint[prms.PrmChunk.NumberOfIndices];
                                     switch (prms.PrmChunk.DataType)
                                     {
-                                        case Constants.DataTypes.UnsignedByte:
+                                        case Constants.PicaDataType.UnsignedByte:
                                             for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
                                                 idx[i] = (uint)cmbRoot.Indices[(prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize)];
                                             break;
-                                        case Constants.DataTypes.UnsignedShort:
+                                        case Constants.PicaDataType.UnsignedShort:
                                             for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
                                                 idx[i] = (uint)BitConverter.ToUInt16(cmbRoot.Indices, (prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize));
                                             break;
-                                        case Constants.DataTypes.UnsignedInt:
+                                        case Constants.PicaDataType.UnsignedInt:
                                             for (int i = 0; i < prms.PrmChunk.NumberOfIndices; i++)
                                                 idx[i] = BitConverter.ToUInt32(cmbRoot.Indices, (prms.PrmChunk.FirstIndex * sizeof(ushort)) + (i * prms.PrmChunk.ElementSize));
                                             break;
@@ -508,14 +508,14 @@ namespace N3DSCmbViewer.Cmb
             xw.WriteEndElement();
         }
 
-        private static float[] ConvertToFloatArray(Constants.DataTypes format, byte[] data, uint offset, float scale)
+        private static float[] ConvertToFloatArray(Constants.PicaDataType format, byte[] data, uint offset, float scale)
         {
             float[] dataOut = new float[2];
 
             switch (format)
             {
-                case Constants.DataTypes.Byte:
-                case Constants.DataTypes.UnsignedByte:
+                case Constants.PicaDataType.Byte:
+                case Constants.PicaDataType.UnsignedByte:
                     {
                         byte[] temp = new byte[(data.Length - offset) / sizeof(byte)];
                         Buffer.BlockCopy(data, (int)offset, temp, 0, temp.Length * sizeof(byte));
@@ -524,8 +524,8 @@ namespace N3DSCmbViewer.Cmb
                     }
                     break;
 
-                case Constants.DataTypes.Short:
-                case Constants.DataTypes.UnsignedShort:
+                case Constants.PicaDataType.Short:
+                case Constants.PicaDataType.UnsignedShort:
                     {
                         short[] temp = new short[(data.Length - offset) / sizeof(short)];
                         Buffer.BlockCopy(data, (int)offset, temp, 0, temp.Length * sizeof(short));
@@ -534,7 +534,7 @@ namespace N3DSCmbViewer.Cmb
                     }
                     break;
 
-                case Constants.DataTypes.Float:
+                case Constants.PicaDataType.Float:
                     {
                         int texCoordDataLength = (int)(data.Length - offset);
                         dataOut = new float[texCoordDataLength / sizeof(float)];

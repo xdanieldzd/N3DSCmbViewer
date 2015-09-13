@@ -4,6 +4,10 @@
 
 #define MAX_BONE_MATRIX 128
 
+#define SKINNING_SINGLEBONE 0
+#define SKINNING_PERVERTEX 1
+#define SKINNING_PERVERTEXNOTRANS 2
+
 /* General */
 varying vec4 vertexPosition;
 
@@ -15,7 +19,7 @@ varying vec3 normal, halfVector;
 uniform usamplerBuffer vertBoneSampler;
 
 uniform mat4 boneMatrix[MAX_BONE_MATRIX];
-uniform bool perVertexSkinning;
+uniform int skinningMode;
 uniform int boneId;
 uniform float vertexScale;
 uniform float texCoordScale;
@@ -41,18 +45,28 @@ void main()
     /* Bone workings */
     mat4 tempMatrix = mat4(1.0);
     
+	/* ...I have no idea ... */
     if(enableSkeletalStuff)
     {
         uint lookupId = uint(texelFetchBuffer(vertBoneSampler, gl_VertexID).r);
-        if(perVertexSkinning)
-        {
-            /* Per vertex OR per vertex, no translation */
-            tempMatrix = boneMatrix[lookupId];
-        }
-        else
+
+        if(skinningMode == SKINNING_SINGLEBONE)
         {
             /* Single bone */
             tempMatrix = boneMatrix[boneId];
+		}
+		else if(skinningMode == SKINNING_PERVERTEX)
+		{
+            /* Per vertex */
+            tempMatrix = boneMatrix[lookupId];
+        }
+        else if(skinningMode == SKINNING_PERVERTEXNOTRANS)
+        {
+			/* Per vertex, no translation */
+			tempMatrix = boneMatrix[lookupId];
+			tempMatrix[0][3] = 0.0;
+			tempMatrix[1][3] = 0.0;
+			tempMatrix[2][3] = 0.0;
         }
     }
     

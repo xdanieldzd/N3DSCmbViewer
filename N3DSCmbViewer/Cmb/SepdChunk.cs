@@ -27,7 +27,7 @@ namespace N3DSCmbViewer.Cmb
 
         public uint[] ArrayOffsets { get; private set; }
         public float[] ArrayScales { get; private set; }
-        public Constants.DataTypes[] ArrayDataTypes { get; private set; }
+        public Constants.PicaDataType[] ArrayDataTypes { get; private set; }
         public ushort[] ArrayUnknown1 { get; private set; }
         public uint[] ArrayUnknown2 { get; private set; }
         public uint[] ArrayUnknown3 { get; private set; }
@@ -36,27 +36,27 @@ namespace N3DSCmbViewer.Cmb
 
         public uint VertexArrayOffset { get { return ArrayOffsets[BaseCTRChunk.IsMajora3D ? VatrChunk.VertexArray_MM : VatrChunk.VertexArray_OoT]; } }
         public float VertexArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.VertexArray_MM : VatrChunk.VertexArray_OoT]; } }
-        public Constants.DataTypes VertexArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.VertexArray_MM : VatrChunk.VertexArray_OoT]; } }
+        public Constants.PicaDataType VertexArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.VertexArray_MM : VatrChunk.VertexArray_OoT]; } }
 
         public uint NormalArrayOffset { get { return ArrayOffsets[BaseCTRChunk.IsMajora3D ? VatrChunk.NormalArray_MM : VatrChunk.NormalArray_OoT]; } }
         public float NormalArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.NormalArray_MM : VatrChunk.NormalArray_OoT]; } }
-        public Constants.DataTypes NormalArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.NormalArray_MM : VatrChunk.NormalArray_OoT]; } }
+        public Constants.PicaDataType NormalArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.NormalArray_MM : VatrChunk.NormalArray_OoT]; } }
 
         public uint ColorArrayOffset { get { return ArrayOffsets[BaseCTRChunk.IsMajora3D ? VatrChunk.ColorArray_MM : VatrChunk.ColorArray_OoT]; } }
         public float ColorArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.ColorArray_MM : VatrChunk.ColorArray_OoT]; } }
-        public Constants.DataTypes ColorArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.ColorArray_MM : VatrChunk.ColorArray_OoT]; } }
+        public Constants.PicaDataType ColorArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.ColorArray_MM : VatrChunk.ColorArray_OoT]; } }
 
         public uint TextureCoordArrayOffset { get { return ArrayOffsets[BaseCTRChunk.IsMajora3D ? VatrChunk.TextureCoordArray_MM : VatrChunk.TextureCoordArray_OoT]; } }
         public float TextureCoordArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.TextureCoordArray_MM : VatrChunk.TextureCoordArray_OoT]; } }
-        public Constants.DataTypes TextureCoordArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.TextureCoordArray_MM : VatrChunk.TextureCoordArray_OoT]; } }
+        public Constants.PicaDataType TextureCoordArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.TextureCoordArray_MM : VatrChunk.TextureCoordArray_OoT]; } }
 
         public uint BoneIndexLookupArrayOffset { get { return ArrayOffsets[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneIndexLookupArray_MM : VatrChunk.BoneIndexLookupArray_OoT]; } }
         public float BoneIndexLookupArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneIndexLookupArray_MM : VatrChunk.BoneIndexLookupArray_OoT]; } }
-        public Constants.DataTypes BoneIndexLookupArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneIndexLookupArray_MM : VatrChunk.BoneIndexLookupArray_OoT]; } }
+        public Constants.PicaDataType BoneIndexLookupArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneIndexLookupArray_MM : VatrChunk.BoneIndexLookupArray_OoT]; } }
 
         public uint BoneWeightArrayOffset { get { return ArrayOffsets[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneWeightArray_MM : VatrChunk.BoneWeightArray_OoT]; } }
         public float BoneWeightArrayScale { get { return ArrayScales[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneWeightArray_MM : VatrChunk.BoneWeightArray_OoT]; } }
-        public Constants.DataTypes BoneWeightArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneWeightArray_MM : VatrChunk.BoneWeightArray_OoT]; } }
+        public Constants.PicaDataType BoneWeightArrayDataType { get { return ArrayDataTypes[BaseCTRChunk.IsMajora3D ? VatrChunk.BoneWeightArray_MM : VatrChunk.BoneWeightArray_OoT]; } }
 
         public uint Unknown_104OoT_120MM { get; private set; }
 
@@ -91,7 +91,7 @@ namespace N3DSCmbViewer.Cmb
 
             ArrayOffsets = new uint[arrayCount];
             ArrayScales = new float[arrayCount];
-            ArrayDataTypes = new Constants.DataTypes[arrayCount];
+            ArrayDataTypes = new Constants.PicaDataType[arrayCount];
             ArrayUnknown1 = new ushort[arrayCount];
             ArrayUnknown2 = new uint[arrayCount];
             ArrayUnknown3 = new uint[arrayCount];
@@ -102,7 +102,7 @@ namespace N3DSCmbViewer.Cmb
             {
                 ArrayOffsets[i] = BitConverter.ToUInt32(ChunkData, 0x24 + (i * 0x1C));
                 ArrayScales[i] = BitConverter.ToSingle(ChunkData, 0x28 + (i * 0x1C));
-                ArrayDataTypes[i] = (Constants.DataTypes)BitConverter.ToUInt16(ChunkData, 0x2C + (i * 0x1C));
+                ArrayDataTypes[i] = (Constants.PicaDataType)BitConverter.ToUInt16(ChunkData, 0x2C + (i * 0x1C));
                 ArrayUnknown1[i] = BitConverter.ToUInt16(ChunkData, 0x2E + (i * 0x1C));
                 ArrayUnknown2[i] = BitConverter.ToUInt32(ChunkData, 0x30 + (i * 0x1C));
                 ArrayUnknown3[i] = BitConverter.ToUInt32(ChunkData, 0x34 + (i * 0x1C));
@@ -119,22 +119,22 @@ namespace N3DSCmbViewer.Cmb
 
             switch (NormalArrayDataType)
             {
-                case Constants.DataTypes.Byte:
-                case Constants.DataTypes.UnsignedByte:
+                case Constants.PicaDataType.Byte:
+                case Constants.PicaDataType.UnsignedByte:
                     NormalPointerType = NormalPointerType.Byte;
                     NormalSize = (sizeof(byte) * 3);
                     break;
-                case Constants.DataTypes.Short:
-                case Constants.DataTypes.UnsignedShort:
+                case Constants.PicaDataType.Short:
+                case Constants.PicaDataType.UnsignedShort:
                     NormalPointerType = NormalPointerType.Short;
                     NormalSize = (sizeof(ushort) * 3);
                     break;
-                case Constants.DataTypes.Int:
-                case Constants.DataTypes.UnsignedInt:
+                case Constants.PicaDataType.Int:
+                case Constants.PicaDataType.UnsignedInt:
                     NormalPointerType = NormalPointerType.Int;
                     NormalSize = (sizeof(uint) * 3);
                     break;
-                case Constants.DataTypes.Float:
+                case Constants.PicaDataType.Float:
                     NormalPointerType = NormalPointerType.Float;
                     NormalSize = (sizeof(float) * 3);
                     break;
@@ -142,31 +142,31 @@ namespace N3DSCmbViewer.Cmb
 
             switch (ColorArrayDataType)
             {
-                case Constants.DataTypes.Byte:
+                case Constants.PicaDataType.Byte:
                     ColorPointerType = ColorPointerType.Byte;
                     ColorSize = (sizeof(sbyte) * 4);
                     break;
-                case Constants.DataTypes.UnsignedByte:
+                case Constants.PicaDataType.UnsignedByte:
                     ColorPointerType = ColorPointerType.UnsignedByte;
                     ColorSize = (sizeof(byte) * 4);
                     break;
-                case Constants.DataTypes.Short:
+                case Constants.PicaDataType.Short:
                     ColorPointerType = ColorPointerType.Short;
                     ColorSize = (sizeof(short) * 4);
                     break;
-                case Constants.DataTypes.UnsignedShort:
+                case Constants.PicaDataType.UnsignedShort:
                     ColorPointerType = ColorPointerType.UnsignedShort;
                     ColorSize = (sizeof(ushort) * 4);
                     break;
-                case Constants.DataTypes.Int:
+                case Constants.PicaDataType.Int:
                     ColorPointerType = ColorPointerType.Int;
                     ColorSize = (sizeof(int) * 4);
                     break;
-                case Constants.DataTypes.UnsignedInt:
+                case Constants.PicaDataType.UnsignedInt:
                     ColorPointerType = ColorPointerType.UnsignedInt;
                     ColorSize = (sizeof(uint) * 4);
                     break;
-                case Constants.DataTypes.Float:
+                case Constants.PicaDataType.Float:
                     ColorPointerType = ColorPointerType.Float;
                     ColorSize = (sizeof(float) * 4);
                     break;
@@ -174,23 +174,23 @@ namespace N3DSCmbViewer.Cmb
 
             switch (TextureCoordArrayDataType)
             {
-                case Constants.DataTypes.Byte:
-                case Constants.DataTypes.UnsignedByte:
+                case Constants.PicaDataType.Byte:
+                case Constants.PicaDataType.UnsignedByte:
                     /* Needs conversion to short during rendering! */
                     TexCoordPointerType = TexCoordPointerType.Short;
                     TexCoordSize = (sizeof(byte) * 2);
                     break;
-                case Constants.DataTypes.Short:
-                case Constants.DataTypes.UnsignedShort:
+                case Constants.PicaDataType.Short:
+                case Constants.PicaDataType.UnsignedShort:
                     TexCoordPointerType = TexCoordPointerType.Short;
                     TexCoordSize = (sizeof(ushort) * 2);
                     break;
-                case Constants.DataTypes.Int:
-                case Constants.DataTypes.UnsignedInt:
+                case Constants.PicaDataType.Int:
+                case Constants.PicaDataType.UnsignedInt:
                     TexCoordPointerType = TexCoordPointerType.Int;
                     TexCoordSize = (sizeof(uint) * 2);
                     break;
-                case Constants.DataTypes.Float:
+                case Constants.PicaDataType.Float:
                     TexCoordPointerType = TexCoordPointerType.Float;
                     TexCoordSize = (sizeof(float) * 2);
                     break;
@@ -198,23 +198,23 @@ namespace N3DSCmbViewer.Cmb
 
             switch (VertexArrayDataType)
             {
-                case Constants.DataTypes.Byte:
-                case Constants.DataTypes.UnsignedByte:
+                case Constants.PicaDataType.Byte:
+                case Constants.PicaDataType.UnsignedByte:
                     /* Needs conversion to short during rendering! */
                     VertexPointerType = VertexPointerType.Short;
                     VertexSize = (sizeof(byte) * 3);
                     break;
-                case Constants.DataTypes.Short:
-                case Constants.DataTypes.UnsignedShort:
+                case Constants.PicaDataType.Short:
+                case Constants.PicaDataType.UnsignedShort:
                     VertexPointerType = VertexPointerType.Short;
                     VertexSize = (sizeof(ushort) * 3);
                     break;
-                case Constants.DataTypes.Int:
-                case Constants.DataTypes.UnsignedInt:
+                case Constants.PicaDataType.Int:
+                case Constants.PicaDataType.UnsignedInt:
                     VertexPointerType = VertexPointerType.Int;
                     VertexSize = (sizeof(uint) * 3);
                     break;
-                case Constants.DataTypes.Float:
+                case Constants.PicaDataType.Float:
                     VertexPointerType = VertexPointerType.Float;
                     VertexSize = (sizeof(float) * 3);
                     break;
@@ -222,19 +222,19 @@ namespace N3DSCmbViewer.Cmb
 
             switch (BoneIndexLookupArrayDataType)
             {
-                case Constants.DataTypes.Byte:
-                case Constants.DataTypes.UnsignedByte:
+                case Constants.PicaDataType.Byte:
+                case Constants.PicaDataType.UnsignedByte:
                     BoneIndexLookupSize = sizeof(byte);
                     break;
-                case Constants.DataTypes.Short:
-                case Constants.DataTypes.UnsignedShort:
+                case Constants.PicaDataType.Short:
+                case Constants.PicaDataType.UnsignedShort:
                     BoneIndexLookupSize = sizeof(ushort);
                     break;
-                case Constants.DataTypes.Int:
-                case Constants.DataTypes.UnsignedInt:
+                case Constants.PicaDataType.Int:
+                case Constants.PicaDataType.UnsignedInt:
                     BoneIndexLookupSize = sizeof(uint);
                     break;
-                case Constants.DataTypes.Float:
+                case Constants.PicaDataType.Float:
                     BoneIndexLookupSize = sizeof(float);
                     break;
             }

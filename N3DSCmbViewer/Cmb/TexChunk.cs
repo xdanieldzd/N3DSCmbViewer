@@ -21,20 +21,20 @@ namespace N3DSCmbViewer.Cmb
 
         public enum Formats : uint
         {
-            ETC1 = Constants.TextureFormats.ETC1RGB8NativeDMP,
-            ETC1A4 = Constants.TextureFormats.ETC1AlphaRGB8A4NativeDMP,
-            RGBA8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.RGBANativeDMP),
-            RGB8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.RGBNativeDMP),
-            RGBA4 = ((uint)Constants.DataTypes.UnsignedShort4444 << 16 | Constants.TextureFormats.RGBANativeDMP),
-            RGBA5551 = ((uint)Constants.DataTypes.UnsignedShort5551 << 16 | Constants.TextureFormats.RGBANativeDMP),
-            RGB565 = ((uint)Constants.DataTypes.UnsignedShort565 << 16 | Constants.TextureFormats.RGBNativeDMP),
-            LA4 = ((uint)Constants.DataTypes.UnsignedByte44DMP << 16 | Constants.TextureFormats.LuminanceAlphaNativeDMP),
-            LA8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.LuminanceAlphaNativeDMP),
-            A8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.AlphaNativeDMP),
-            L8 = ((uint)Constants.DataTypes.UnsignedByte << 16 | Constants.TextureFormats.LuminanceNativeDMP),
+            ETC1 = Constants.PicaTextureFormat.ETC1RGB8NativeDMP,
+            ETC1A4 = Constants.PicaTextureFormat.ETC1AlphaRGB8A4NativeDMP,
+            RGBA8 = ((uint)Constants.PicaDataType.UnsignedByte << 16 | Constants.PicaTextureFormat.RGBANativeDMP),
+            RGB8 = ((uint)Constants.PicaDataType.UnsignedByte << 16 | Constants.PicaTextureFormat.RGBNativeDMP),
+            RGBA4 = ((uint)Constants.PicaDataType.UnsignedShort4444 << 16 | Constants.PicaTextureFormat.RGBANativeDMP),
+            RGBA5551 = ((uint)Constants.PicaDataType.UnsignedShort5551 << 16 | Constants.PicaTextureFormat.RGBANativeDMP),
+            RGB565 = ((uint)Constants.PicaDataType.UnsignedShort565 << 16 | Constants.PicaTextureFormat.RGBNativeDMP),
+            LA4 = ((uint)Constants.PicaDataType.UnsignedByte44DMP << 16 | Constants.PicaTextureFormat.LuminanceAlphaNativeDMP),
+            LA8 = ((uint)Constants.PicaDataType.UnsignedByte << 16 | Constants.PicaTextureFormat.LuminanceAlphaNativeDMP),
+            A8 = ((uint)Constants.PicaDataType.UnsignedByte << 16 | Constants.PicaTextureFormat.AlphaNativeDMP),
+            L8 = ((uint)Constants.PicaDataType.UnsignedByte << 16 | Constants.PicaTextureFormat.LuminanceNativeDMP),
 
             /* Needs rewrite to support formats w/ <1byte per pixel */
-            L4 = ((uint)Constants.DataTypes.Unsigned4BitsDMP << 16 | Constants.TextureFormats.LuminanceNativeDMP)
+            L4 = ((uint)Constants.PicaDataType.Unsigned4BitsDMP << 16 | Constants.PicaTextureFormat.LuminanceNativeDMP)
         };
 
         public uint TextureCount { get; private set; }

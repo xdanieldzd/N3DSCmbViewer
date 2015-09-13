@@ -16,7 +16,7 @@ namespace N3DSCmbViewer.Cmb
         public uint MaterialCount { get; private set; }
 
         public Material[] Materials { get; private set; }
-        public TexEnvStuff[] TexEnvStuffs { get; private set; }
+        public TextureEnvSetting[] TextureEnvSettings { get; private set; }
 
         public MatsChunk(byte[] data, int offset, BaseCTRChunk parent)
             : base(data, offset, parent)
@@ -28,8 +28,8 @@ namespace N3DSCmbViewer.Cmb
             Materials = new Material[MaterialCount];
             for (int i = 0; i < Materials.Length; i++) Materials[i] = new Material(ChunkData, 0xC + (i * matDataSize));
 
-            TexEnvStuffs = new TexEnvStuff[MaterialCount];
-            for (int i = 0; i < TexEnvStuffs.Length; i++) TexEnvStuffs[i] = new TexEnvStuff(ChunkData, 0xC + (int)(MaterialCount * matDataSize) + (i * TexEnvStuff.DataSize));
+            TextureEnvSettings = new TextureEnvSetting[MaterialCount];
+            for (int i = 0; i < TextureEnvSettings.Length; i++) TextureEnvSettings[i] = new TextureEnvSetting(ChunkData, 0xC + (int)(MaterialCount * matDataSize) + (i * TextureEnvSetting.DataSize));
         }
 
         public override string ToString()
@@ -40,7 +40,11 @@ namespace N3DSCmbViewer.Cmb
             sb.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "Number of materials: 0x{0:X}\n", MaterialCount);
             sb.AppendLine();
 
-            foreach (Material material in Materials) sb.Append(material.ToString());
+            for (int i = 0; i < MaterialCount; i++)
+            {
+                sb.Append(Materials[i].ToString());
+                sb.Append(TextureEnvSettings[i].ToString());
+            }
 
             return sb.ToString();
         }
@@ -140,8 +144,9 @@ namespace N3DSCmbViewer.Cmb
             public float Float11C { get; private set; }
             public uint NumberOfIndicesToUnknown { get; private set; }    //00000001
             public ushort[] IndicesToUnknown { get; private set; }
-            public ushort MaybeAlphaReference { get; private set; }            //0000
-            public AlphaFunction MaybeAlphaFunction { get; private set; }       //0207
+            public bool AlphaTestEnable { get; private set; }
+            public float AlphaReference { get; private set; }               //0000
+            public AlphaFunction AlphaFunction { get; private set; }        //0207
             public ushort MaybeStencilUnknown134 { get; private set; }          //0101
             public StencilFunction MaybeStencilFunction { get; private set; }   //0201
             public uint Unknown138 { get; private set; }
@@ -251,8 +256,9 @@ namespace N3DSCmbViewer.Cmb
                 NumberOfIndicesToUnknown = BitConverter.ToUInt32(data, offset + 0x120);
                 IndicesToUnknown = new ushort[NumberOfIndicesToUnknown];
                 for (int i = 0; i < IndicesToUnknown.Length; i++) IndicesToUnknown[i] = BitConverter.ToUInt16(data, offset + 0x124 + (i * sizeof(ushort)));
-                MaybeAlphaReference = BitConverter.ToUInt16(data, offset + 0x130);
-                MaybeAlphaFunction = (AlphaFunction)BitConverter.ToUInt16(data, offset + 0x132);
+                AlphaTestEnable = Convert.ToBoolean(data[offset + 0x130]);
+                AlphaReference = (Convert.ToSingle(data[offset + 0x131]) / 256.0f);
+                AlphaFunction = (AlphaFunction)BitConverter.ToUInt16(data, offset + 0x132);
                 MaybeStencilUnknown134 = BitConverter.ToUInt16(data, offset + 0x134);
                 MaybeStencilFunction = (StencilFunction)BitConverter.ToUInt16(data, offset + 0x136);
                 Unknown138 = BitConverter.ToUInt32(data, offset + 0x138);
@@ -288,12 +294,14 @@ namespace N3DSCmbViewer.Cmb
                     "Texture 1 -> ID: {5}, Min/Mag filter: {6}/{7}, Wrap mode S/T: {8}/{9}\n" +
                     "Texture 2 -> ID: {10}, Min/Mag filter: {11}/{12}, Wrap mode S/T: {13}/{14}\n" +
                     "Blend factor source/destination: {15}/{16}\n" +
-                    "Maybe alpha: {17} 0x{18:X}, maybe stencil: {19} 0x{20:X}\n",
+                    "Alpha test: {17} {18} {19}\n" +
+                    "Stencil: {20} {21:X}\n",
                     TextureIDs[0], TextureMinFilters[0], TextureMagFilters[0], TextureWrapModeSs[0], TextureWrapModeTs[0],
                     TextureIDs[1], TextureMinFilters[1], TextureMagFilters[1], TextureWrapModeSs[1], TextureWrapModeTs[1],
                     TextureIDs[2], TextureMinFilters[2], TextureMagFilters[2], TextureWrapModeSs[2], TextureWrapModeTs[2],
                     BlendingFactorSrc, BlendingFactorDest,
-                    MaybeAlphaFunction, MaybeAlphaReference, MaybeStencilFunction, MaybeStencilUnknown134);
+                    AlphaTestEnable, AlphaFunction, AlphaReference,
+                    MaybeStencilFunction, MaybeStencilUnknown134);
                 sb.AppendLine();
 
                 return sb.ToString();
@@ -301,53 +309,69 @@ namespace N3DSCmbViewer.Cmb
         }
 
         [System.Diagnostics.DebuggerDisplay("{GetType()}")]
-        public class TexEnvStuff
+        public class TextureEnvSetting
         {
             public const int DataSize = 0x28;
 
-            public ushort Unknown00 { get; private set; }
-            public ushort Unknown02 { get; private set; }
-            public ushort Unknown04 { get; private set; }
-            public ushort Unknown06 { get; private set; }
-            public ushort Unknown08 { get; private set; }
-            public ushort Unknown0A { get; private set; }
-            public ushort Unknown0C { get; private set; }
-            public ushort Unknown0E { get; private set; }
-            public ushort Unknown10 { get; private set; }
-            public ushort Unknown12 { get; private set; }
-            public ushort Unknown14 { get; private set; }
-            public ushort Unknown16 { get; private set; }
-            public ushort Unknown18 { get; private set; }
-            public ushort Unknown1A { get; private set; }
-            public ushort Unknown1C { get; private set; }
-            public ushort Unknown1E { get; private set; }
-            public ushort Unknown20 { get; private set; }
-            public ushort Unknown22 { get; private set; }
-            public ushort Unknown24 { get; private set; }
-            public ushort Unknown26 { get; private set; }
+            public Constants.PicaTextureEnvModeCombine CombineRgb { get; private set; }
+            public Constants.PicaTextureEnvModeCombine CombineAlpha { get; private set; }
+            public ushort[] UnknownUshort1 { get; private set; }
+            public ushort[] UnknownGLConstant { get; private set; }
+            public Constants.PicaTextureEnvModeSource[] SourceRgb { get; private set; }
+            public Constants.PicaTextureEnvModeOperandRgb[] OperandRgb { get; private set; }
+            public Constants.PicaTextureEnvModeSource[] SourceAlpha { get; private set; }
+            public Constants.PicaTextureEnvModeOperandAlpha[] OperandAlpha { get; private set; }
+            public ushort[] UnknownUshort2 { get; private set; }
 
-            public TexEnvStuff(byte[] data, int offset)
+            public TextureEnvSetting(byte[] data, int offset)
             {
-                Unknown00 = BitConverter.ToUInt16(data, offset);
-                Unknown02 = BitConverter.ToUInt16(data, offset + 0x02);
-                Unknown04 = BitConverter.ToUInt16(data, offset + 0x04);
-                Unknown06 = BitConverter.ToUInt16(data, offset + 0x06);
-                Unknown08 = BitConverter.ToUInt16(data, offset + 0x08);
-                Unknown0A = BitConverter.ToUInt16(data, offset + 0x0A);
-                Unknown0C = BitConverter.ToUInt16(data, offset + 0x0C);
-                Unknown0E = BitConverter.ToUInt16(data, offset + 0x0E);
-                Unknown10 = BitConverter.ToUInt16(data, offset + 0x10);
-                Unknown12 = BitConverter.ToUInt16(data, offset + 0x12);
-                Unknown14 = BitConverter.ToUInt16(data, offset + 0x14);
-                Unknown16 = BitConverter.ToUInt16(data, offset + 0x16);
-                Unknown18 = BitConverter.ToUInt16(data, offset + 0x18);
-                Unknown1A = BitConverter.ToUInt16(data, offset + 0x1A);
-                Unknown1C = BitConverter.ToUInt16(data, offset + 0x1C);
-                Unknown1E = BitConverter.ToUInt16(data, offset + 0x1E);
-                Unknown20 = BitConverter.ToUInt16(data, offset + 0x20);
-                Unknown22 = BitConverter.ToUInt16(data, offset + 0x22);
-                Unknown24 = BitConverter.ToUInt16(data, offset + 0x24);
-                Unknown26 = BitConverter.ToUInt16(data, offset + 0x26);
+                CombineRgb = (Constants.PicaTextureEnvModeCombine)BitConverter.ToUInt16(data, offset);
+                CombineAlpha = (Constants.PicaTextureEnvModeCombine)BitConverter.ToUInt16(data, offset + 0x02);
+                UnknownUshort1 = new ushort[2];
+                UnknownUshort1[0] = BitConverter.ToUInt16(data, offset + 0x04);
+                UnknownUshort1[1] = BitConverter.ToUInt16(data, offset + 0x06);
+                UnknownGLConstant = new ushort[2];
+                UnknownGLConstant[0] = BitConverter.ToUInt16(data, offset + 0x08);
+                UnknownGLConstant[1] = BitConverter.ToUInt16(data, offset + 0x0A);
+                SourceRgb = new Constants.PicaTextureEnvModeSource[3];
+                SourceRgb[0] = (Constants.PicaTextureEnvModeSource)BitConverter.ToUInt16(data, offset + 0x0C);
+                SourceRgb[1] = (Constants.PicaTextureEnvModeSource)BitConverter.ToUInt16(data, offset + 0x0E);
+                SourceRgb[2] = (Constants.PicaTextureEnvModeSource)BitConverter.ToUInt16(data, offset + 0x10);
+                OperandRgb = new Constants.PicaTextureEnvModeOperandRgb[3];
+                OperandRgb[0] = (Constants.PicaTextureEnvModeOperandRgb)BitConverter.ToUInt16(data, offset + 0x12);
+                OperandRgb[1] = (Constants.PicaTextureEnvModeOperandRgb)BitConverter.ToUInt16(data, offset + 0x14);
+                OperandRgb[2] = (Constants.PicaTextureEnvModeOperandRgb)BitConverter.ToUInt16(data, offset + 0x16);
+                SourceAlpha = new Constants.PicaTextureEnvModeSource[3];
+                SourceAlpha[0] = (Constants.PicaTextureEnvModeSource)BitConverter.ToUInt16(data, offset + 0x18);
+                SourceAlpha[1] = (Constants.PicaTextureEnvModeSource)BitConverter.ToUInt16(data, offset + 0x1A);
+                SourceAlpha[2] = (Constants.PicaTextureEnvModeSource)BitConverter.ToUInt16(data, offset + 0x1C);
+                OperandAlpha = new Constants.PicaTextureEnvModeOperandAlpha[3];
+                OperandAlpha[0] = (Constants.PicaTextureEnvModeOperandAlpha)BitConverter.ToUInt16(data, offset + 0x1E);
+                OperandAlpha[1] = (Constants.PicaTextureEnvModeOperandAlpha)BitConverter.ToUInt16(data, offset + 0x20);
+                OperandAlpha[2] = (Constants.PicaTextureEnvModeOperandAlpha)BitConverter.ToUInt16(data, offset + 0x22);
+                UnknownUshort2 = new ushort[2];
+                UnknownUshort2[0] = BitConverter.ToUInt16(data, offset + 0x24);
+                UnknownUshort2[1] = BitConverter.ToUInt16(data, offset + 0x26);
+            }
+
+            public override string ToString()
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.AppendFormat("-- {0} --\n", this.GetType().Name);
+                sb.Append("WARNING: Untested, might be incorrect, I have no idea...\n");
+                sb.AppendFormat("CombineRgb: {0}, CombineAlpha: {1}\n", CombineRgb, CombineAlpha);
+                sb.AppendFormat("Unknown Ushort 1 [0,1]: 0x{0:X}, 0x{1:X}\n", UnknownUshort1[0], UnknownUshort1[1]);
+                sb.AppendFormat("Unknown GL constant [0,1]: 0x{0:X}, 0x{1:X}\n", UnknownGLConstant[0], UnknownGLConstant[1]);
+                sb.AppendFormat("SourceRgb [0,1,2]: {0}, {1}, {2}\n", SourceRgb[0], SourceRgb[1], SourceRgb[2]);
+                sb.AppendFormat("OperandRgb [0,1,2]: {0}, {1}, {2}\n", OperandRgb[0], OperandRgb[1], OperandRgb[2]);
+                sb.AppendFormat("SourceAlpha [0,1,2]: {0}, {1}, {2}\n", SourceAlpha[0], SourceAlpha[1], SourceAlpha[2]);
+                sb.AppendFormat("OperandAlpha [0,1,2]: {0}, {1}, {2}\n", OperandAlpha[0], OperandAlpha[1], OperandAlpha[2]);
+                sb.AppendFormat("Unknown Ushort 2 [0,1]: 0x{0:X}, 0x{1:X}\n", UnknownUshort2[0], UnknownUshort2[1]);
+
+                sb.AppendLine();
+
+                return sb.ToString();
             }
         }
     }

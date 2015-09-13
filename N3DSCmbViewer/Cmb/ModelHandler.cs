@@ -26,7 +26,7 @@ namespace N3DSCmbViewer.Cmb
         int fragmentObject, program;
         int tex0Location, tex1Location, tex2Location;
         int materialColorLocation;
-        int perVertexSkinningLocation, boneIdLocation;
+        int skinningModeLocation, boneIdLocation;
         int vertBoneBufferId, vertBoneTexId;
         int vertBoneSamplerLocation;
 
@@ -43,7 +43,7 @@ namespace N3DSCmbViewer.Cmb
 
         /* For wireframe overlay */
         int fragmentObjectOverlay, programOverlay;
-        int perVertexSkinningLocationOverlay, boneIdLocationOverlay;
+        int skinningModeLocationOverlay, boneIdLocationOverlay;
         int vertBoneSamplerLocationOverlay;
         int vertexScaleLocationOverlay;
         int enableSkeletalStuffLocationOverlay;
@@ -149,7 +149,7 @@ namespace N3DSCmbViewer.Cmb
             tex0Location = tex1Location = tex2Location = -1;
             materialColorLocation = -1;
 
-            perVertexSkinningLocation = boneIdLocation = -1;
+            skinningModeLocation = boneIdLocation = -1;
             vertBoneBufferId = vertBoneTexId = -1;
             vertBoneSamplerLocation = -1;
 
@@ -161,7 +161,7 @@ namespace N3DSCmbViewer.Cmb
             enableLightingLocation = -1;
             enableSkeletalStuffLocation = -1;
 
-            perVertexSkinningLocationOverlay = boneIdLocationOverlay = -1;
+            skinningModeLocationOverlay = boneIdLocationOverlay = -1;
             vertBoneSamplerLocationOverlay = -1;
             vertexScaleLocationOverlay = -1;
             enableSkeletalStuffLocationOverlay = -1;
@@ -208,7 +208,7 @@ namespace N3DSCmbViewer.Cmb
 
                 Aglex.GLSL.CreateProgram(ref program, fragmentObject, vertexObject);
 
-                perVertexSkinningLocation = GL.GetUniformLocation(program, "perVertexSkinning");
+                skinningModeLocation = GL.GetUniformLocation(program, "skinningMode");
                 boneIdLocation = GL.GetUniformLocation(program, "boneId");
                 vertBoneSamplerLocation = GL.GetUniformLocation(program, "vertBoneSampler");
 
@@ -227,7 +227,7 @@ namespace N3DSCmbViewer.Cmb
 
                 Aglex.GLSL.CreateProgram(ref programOverlay, fragmentObjectOverlay, vertexObject);
                 vertexScaleLocationOverlay = GL.GetUniformLocation(programOverlay, "vertexScale");
-                perVertexSkinningLocationOverlay = GL.GetUniformLocation(programOverlay, "perVertexSkinning");
+                skinningModeLocationOverlay = GL.GetUniformLocation(programOverlay, "skinningMode");
                 boneIdLocationOverlay = GL.GetUniformLocation(programOverlay, "boneId");
                 vertBoneSamplerLocationOverlay = GL.GetUniformLocation(programOverlay, "vertBoneSampler");
                 enableSkeletalStuffLocationOverlay = GL.GetUniformLocation(programOverlay, "enableSkeletalStuff");
@@ -274,7 +274,7 @@ namespace N3DSCmbViewer.Cmb
                     int newVertexBuffer = GL.GenBuffer();
 
                     GL.BindBuffer(BufferTarget.ArrayBuffer, newVertexBuffer);
-                    if (sepd.VertexArrayDataType == Constants.DataTypes.Byte || sepd.VertexArrayDataType == Constants.DataTypes.UnsignedByte)
+                    if (sepd.VertexArrayDataType == Constants.PicaDataType.Byte || sepd.VertexArrayDataType == Constants.PicaDataType.UnsignedByte)
                     {
                         short[] converted = new short[Root.VatrChunk.Vertices.Length];
                         expectedSize = (converted.Length * sizeof(ushort));
@@ -332,7 +332,7 @@ namespace N3DSCmbViewer.Cmb
                     int newTexCoordBuffer = GL.GenBuffer();
 
                     GL.BindBuffer(BufferTarget.ArrayBuffer, newTexCoordBuffer);
-                    if (sepd.TextureCoordArrayDataType == Constants.DataTypes.Byte || sepd.TextureCoordArrayDataType == Constants.DataTypes.UnsignedByte)
+                    if (sepd.TextureCoordArrayDataType == Constants.PicaDataType.Byte || sepd.TextureCoordArrayDataType == Constants.PicaDataType.UnsignedByte)
                     {
                         short[] converted = new short[Root.VatrChunk.TextureCoords.Length];
                         expectedSize = (converted.Length * sizeof(ushort));
@@ -413,18 +413,43 @@ namespace N3DSCmbViewer.Cmb
             {
                 if (mesh.SepdID > Root.SklmChunk.ShpChunk.SepdChunks.Length) continue;
                 if (mesh.MaterialID > Root.MatsChunk.Materials.Length) continue;
-                if (mesh.MaterialID > Root.MatsChunk.TexEnvStuffs.Length) continue;
+                if (mesh.MaterialID > Root.MatsChunk.TextureEnvSettings.Length) continue;
 
                 SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
                 MatsChunk.Material mat = Root.MatsChunk.Materials[mesh.MaterialID];
-                MatsChunk.TexEnvStuff tenv = Root.MatsChunk.TexEnvStuffs[mesh.MaterialID];
+                MatsChunk.TextureEnvSetting tenv = Root.MatsChunk.TextureEnvSettings[mesh.MaterialID];
 
                 /* Blend, Alphatest, etc (likely incorrect) */
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(mat.BlendingFactorSrc, mat.BlendingFactorDest);
                 GL.BlendColor(1.0f, 1.0f, 1.0f, mat.BlendColorA);
-                GL.Enable(EnableCap.AlphaTest);
-                GL.AlphaFunc(mat.MaybeAlphaFunction, (float)Math.Round(mat.MaybeAlphaReference / 65535.0f, 2));
+                if (mat.AlphaTestEnable) GL.Enable(EnableCap.AlphaTest);
+                else GL.Disable(EnableCap.AlphaTest);
+                GL.AlphaFunc(mat.AlphaFunction, mat.AlphaReference);
+
+                /* Texenv stuff testing, tho it doesn't work w/ shaders anyway, I dunno */
+                /* Probably needs seperate shader per material, where the texenv stuff gets simulated... */
+                /* And yes, I know this doesn't map 100% to standard OpenGL anyway */
+                if (false)
+                {
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (int)TextureEnvMode.Combine);
+
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.CombineRgb, (int)tenv.CombineRgb);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Source0Rgb, (int)tenv.SourceRgb[0]); // OpenTK, Y U name this one differently?
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Src1Rgb, (int)tenv.SourceRgb[1]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Src2Rgb, (int)tenv.SourceRgb[2]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Operand0Rgb, (int)tenv.OperandRgb[0]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Operand1Rgb, (int)tenv.OperandRgb[1]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Operand2Rgb, (int)tenv.OperandRgb[2]);
+
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.CombineAlpha, (int)tenv.CombineAlpha);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Src0Alpha, (int)tenv.SourceAlpha[0]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Src1Alpha, (int)tenv.SourceAlpha[1]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Src2Alpha, (int)tenv.SourceAlpha[2]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Operand0Alpha, (int)tenv.OperandAlpha[0]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Operand1Alpha, (int)tenv.OperandAlpha[1]);
+                    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.Operand2Alpha, (int)tenv.OperandAlpha[2]);
+                }
 
                 /* Apply textures :P */
                 ApplyTextures(mat);
@@ -464,7 +489,7 @@ namespace N3DSCmbViewer.Cmb
                 foreach (PrmsChunk prms in sepd.PrmsChunks)
                 {
                     PrepareBoneInformation(sepd, prms);
-                    GL.Uniform1(perVertexSkinningLocation, Convert.ToInt16(prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone));
+                    GL.Uniform1(skinningModeLocation, Convert.ToInt16(prms.SkinningMode));
                     RenderBuffer(prms);
                 }
 
@@ -500,7 +525,7 @@ namespace N3DSCmbViewer.Cmb
                     foreach (PrmsChunk prms in sepd.PrmsChunks)
                     {
                         PrepareBoneInformation(sepd, prms);
-                        GL.Uniform1(perVertexSkinningLocationOverlay, Convert.ToInt16(prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone));
+                        GL.Uniform1(skinningModeLocationOverlay, Convert.ToInt16(prms.SkinningMode));
                         RenderBuffer(prms);
                     }
 
@@ -523,6 +548,7 @@ namespace N3DSCmbViewer.Cmb
             {
                 // TODO  get rid of immediate mode
                 GL.PushAttrib(AttribMask.AllAttribBits);
+                GL.Disable(EnableCap.Texture2D);
                 GL.Disable(EnableCap.DepthTest);
                 GL.Disable(EnableCap.Lighting);
                 GL.PointSize(10.0f);
@@ -554,6 +580,11 @@ namespace N3DSCmbViewer.Cmb
             for (int i = 0; i < 3; i++)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + i);
+                if (Properties.Settings.Default.DisableAllShaders)
+                    GL.Enable(EnableCap.Texture2D);
+                else
+                    GL.Disable(EnableCap.Texture2D);
+
                 if (Properties.Settings.Default.EnableTextures && Root.TexChunk.Textures.Length > 0 && mat.TextureIDs[i] != -1)
                 {
                     /* Bind texture & set parameters */
@@ -580,26 +611,26 @@ namespace N3DSCmbViewer.Cmb
         private void PrepareBoneInformation(SepdChunk sepd, PrmsChunk prms)
         {
             /* TODO!! B/C HURR DURR, DON'T KNOW  https://www.the-gcn.com/topic/2859-oot-3d-3ds-model-format-discussion/page-3#entry46121 */
-            if (prms.SkinningMode != PrmsChunk.SkinningModes.SingleBone)
+            if (prms.SkinningMode == PrmsChunk.SkinningModes.PerVertex)
             {
                 uint[] lookupInts = new uint[(int)(Root.VatrChunk.BoneIndexLookup.Length - sepd.BoneIndexLookupArrayOffset) / sepd.BoneIndexLookupSize];
                 for (int i = 0; i < lookupInts.Length; i++)
                 {
                     switch (sepd.BoneIndexLookupArrayDataType)
                     {
-                        case Constants.DataTypes.Byte:
-                        case Constants.DataTypes.UnsignedByte:
+                        case Constants.PicaDataType.Byte:
+                        case Constants.PicaDataType.UnsignedByte:
                             lookupInts[i] = (uint)Root.VatrChunk.BoneIndexLookup[sepd.BoneIndexLookupArrayOffset + (i * sizeof(byte))];
                             break;
-                        case Constants.DataTypes.Short:
-                        case Constants.DataTypes.UnsignedShort:
+                        case Constants.PicaDataType.Short:
+                        case Constants.PicaDataType.UnsignedShort:
                             lookupInts[i] = (uint)BitConverter.ToUInt16(Root.VatrChunk.BoneIndexLookup, (int)(sepd.BoneIndexLookupArrayOffset + (i * sizeof(ushort))));
                             break;
-                        case Constants.DataTypes.Int:
-                        case Constants.DataTypes.UnsignedInt:
+                        case Constants.PicaDataType.Int:
+                        case Constants.PicaDataType.UnsignedInt:
                             lookupInts[i] = (uint)BitConverter.ToUInt32(Root.VatrChunk.BoneIndexLookup, (int)(sepd.BoneIndexLookupArrayOffset + (i * sizeof(uint))));
                             break;
-                        case Constants.DataTypes.Float:
+                        case Constants.PicaDataType.Float:
                             lookupInts[i] = (uint)BitConverter.ToSingle(Root.VatrChunk.BoneIndexLookup, (int)(sepd.BoneIndexLookupArrayOffset + (i * sizeof(float))));
                             break;
                     }

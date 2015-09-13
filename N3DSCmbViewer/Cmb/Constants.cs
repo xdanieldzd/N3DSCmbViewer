@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+
 namespace N3DSCmbViewer.Cmb
 {
     static class Constants
     {
-        public enum DataTypes : ushort
+        public enum PicaDataType : ushort
         {
             Byte = 0x1400,
             UnsignedByte = 0x1401,
@@ -25,7 +29,7 @@ namespace N3DSCmbViewer.Cmb
             UnsignedShort565 = 0x8363
         };
 
-        public enum TextureFormats : ushort
+        public enum PicaTextureFormat : ushort
         {
             RGBANativeDMP = 0x6752,
             RGBNativeDMP = 0x6754,
@@ -34,6 +38,60 @@ namespace N3DSCmbViewer.Cmb
             LuminanceAlphaNativeDMP = 0x6758,
             ETC1RGB8NativeDMP = 0x675A,
             ETC1AlphaRGB8A4NativeDMP = 0x675B
+        };
+
+        public enum PicaTextureEnvModeCombine : ushort
+        {
+            Replace = TextureEnvModeCombine.Replace,
+            Modulate = TextureEnvModeCombine.Modulate,
+            Add = TextureEnvModeCombine.Add,
+            AddSigned = TextureEnvModeCombine.AddSigned,
+            Interpolate = TextureEnvModeCombine.Interpolate,
+            Subtract = TextureEnvModeCombine.Subtract,
+            Dot3Rgb = TextureEnvModeCombine.Dot3Rgb,
+            Dot3Rgba = TextureEnvModeCombine.Dot3Rgba,
+            MultAdd = 0x6401,
+            AddMult = 0x6402
+        };
+
+        public enum PicaTextureEnvModeSource : ushort
+        {
+            PrimaryColor = TextureEnvModeSource.PrimaryColor,
+            FragmentPrimaryColorDMP = 0x6210,
+            FragmentSecondaryColorDMP = 0x6211,
+            Texture0 = TextureEnvModeSource.Texture0,
+            Texture1 = TextureEnvModeSource.Texture1,
+            Texture2 = TextureEnvModeSource.Texture2,
+            Texture3 = TextureEnvModeSource.Texture3,
+            PreviousBufferDMP = 0x8579,
+            Constant = TextureEnvModeSource.Constant,
+            Previous = TextureEnvModeSource.Previous
+        };
+
+        public enum PicaTextureEnvModeOperandRgb : ushort
+        {
+            SrcColor = TextureEnvModeOperandRgb.SrcColor,
+            OneMinusSrcColor = TextureEnvModeOperandRgb.OneMinusSrcColor,
+            SrcAlpha = TextureEnvModeOperandRgb.SrcAlpha,
+            OneMinusSrcAlpha = TextureEnvModeOperandRgb.OneMinusSrcAlpha,
+            SrcRDMP = 0x8580,
+            OneMinusSrcRDMP = 0x8583,
+            SrcGDMP = 0x8581,
+            OneMinusSrcGDMP = 0x8584,
+            SrcBDMP = 0x8582,
+            OneMinusSrcBDMP = 0x8585,
+        };
+
+        public enum PicaTextureEnvModeOperandAlpha : ushort
+        {
+            SrcAlpha = TextureEnvModeOperandAlpha.SrcAlpha,
+            OneMinusSrcAlpha = TextureEnvModeOperandAlpha.OneMinusSrcAlpha,
+            SrcRDMP = 0x8580,
+            OneMinusSrcRDMP = 0x8583,
+            SrcGDMP = 0x8581,
+            OneMinusSrcGDMP = 0x8584,
+            SrcBDMP = 0x8582,
+            OneMinusSrcBDMP = 0x8585,
         };
     }
 }
