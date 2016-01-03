@@ -16,11 +16,6 @@ __This is unfinished, experimental code.__ You _will_ encounter glitches, broken
 
 Also note that this repository supersedes [the old source code archive](http://magicstone.de/dzd/random/3ds/N3DSCmbViewer-bin-src.rar) posted in 2014, before this repository existed.
 
-Documentation
-=============
-
-A spreadsheet with links to documentation about OoT3D and MM3D, maintained by members of the #zelda IRC channel on BadnikNET, [can be found here](http://tinyurl.com/zelda-resource).
-
 Acknowledgements
 ================
 
