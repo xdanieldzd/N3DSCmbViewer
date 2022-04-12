@@ -18,6 +18,9 @@ namespace N3DSCmbViewer.ZSI
         public short RotationY { get; private set; }
         public short RotationZ { get; private set; }
         public ushort Variable { get; private set; }
+        public short Test1 { get; private set; }
+        public short Test2 { get; private set; }
+        public short Test3 { get; private set; }
 
         public Actor(byte[] data, int offset)
         {

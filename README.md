@@ -32,3 +32,4 @@ Acknowledgements
 * Various additional research by Twili
 * COLLADA exporter written with a lot of help from Peardian
 * LZSS decompression code adapted from [C++ code by ShimmerFairy](https://github.com/ShimmerFairy/MM3D/)
+* Additional modifications by NishaWolfe

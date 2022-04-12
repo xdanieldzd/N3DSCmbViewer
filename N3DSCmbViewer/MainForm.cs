@@ -550,7 +550,7 @@ namespace N3DSCmbViewer
                     TreeNode actorsNode = new TreeNode("Room Actors") { Tag = setup };
                     for (int j = 0; j < setup.Actors.Count; j++)
                     {
-                        actorsNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4}) Pos({2},{3},{4}) Rot({5},{6},{7}) Var({8})", j, setup.Actors[j].Number, setup.Actors[j].PositionX, setup.Actors[j].PositionY, setup.Actors[j].PositionZ, setup.Actors[j].RotationX, setup.Actors[j].RotationY, setup.Actors[j].RotationZ, setup.Actors[j].Variable)) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
+                        actorsNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4}), Pos({3},{4},{5}) Rot({6},{7},{8}) Var({9})", j, setup.Actors[j].Number, setup.Actors[j].Number & 0x0FFF, setup.Actors[j].PositionX, setup.Actors[j].PositionY, setup.Actors[j].PositionZ, setup.Actors[j].RotationX, setup.Actors[j].RotationY, setup.Actors[j].RotationZ, setup.Actors[j].Variable)) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
                     }
                     setupNode.Nodes.Add(actorsNode);
                 }
@@ -637,6 +637,57 @@ namespace N3DSCmbViewer
             }
         }
 
+        //TODO: Move this to a seperate function, perhaps in the modelFile function
+        private void dumpSceneActorsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (zsiFile != null)
+            {
+                sfdLogFile.FileName = string.Format("{0}.txt", modelFile.Root.CmbName + "_actors");
+
+                if (sfdLogFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    StreamWriter log = new StreamWriter(File.Create(sfdLogFile.FileName), Encoding.Unicode);
+
+                    for (int i = 0; i < zsiFile.Setups.Count; i++)
+                    {
+                        Setup setup = zsiFile.Setups[i];
+                        log.WriteLine(string.Format("Setup #{0} (0x{1:X6})\n", i, setup.Offset));
+
+                        if (setup.Actors.Count != 0)
+                        {
+                            TreeNode actorsNode = new TreeNode("Room Actors") { Tag = setup };
+                            for (int j = 0; j < setup.Actors.Count; j++)
+                            {
+                                log.WriteLine(
+
+                                    string.Format("Actor #{0}\n Hex ID: 0x{1:X4}\n Shortened Hex ID: 0x{2:X4}\n Literal ID: {2}\n Position:\n   x: {3}\n   y: {4}\n   z: {5}\n Rotation:\n   x: {6}\n   y: {7}\n   z: {8}\n Actor Variable: {9}\n\n",
+                                    j,
+                                    setup.Actors[j].Number,
+                                    setup.Actors[j].Number & 0x0FFF,
+                                    setup.Actors[j].PositionX,
+                                    setup.Actors[j].PositionY,
+                                    setup.Actors[j].PositionZ,
+                                    setup.Actors[j].RotationX,
+                                    setup.Actors[j].RotationY,
+                                    setup.Actors[j].RotationZ,
+                                    setup.Actors[j].Variable)
+
+                                );
+                            }
+                        }
+                    }
+                    log.Flush();
+                    log.Close();
+                }
+            }
+            else
+            {
+                string title = "Not a Scene!";
+                string boxText = "No scene data was found.\nThis probably means this is an actor file.";
+                MessageBox.Show(boxText, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        
         private void disableAllShadersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.DisableAllShaders = (sender as ToolStripMenuItem).Checked;
