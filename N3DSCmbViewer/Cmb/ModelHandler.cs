@@ -72,7 +72,7 @@ namespace N3DSCmbViewer.Cmb
         {
             Filename = string.Empty;
             Data = new byte[length];
-            Buffer.BlockCopy(data, offset, Data, 0, Data.Length);
+            System.Buffer.BlockCopy(data, offset, Data, 0, Data.Length);
 
             Load();
         }
@@ -421,7 +421,7 @@ namespace N3DSCmbViewer.Cmb
 
                 /* Blend, Alphatest, etc (likely incorrect) */
                 GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(mat.BlendingFactorSrc, mat.BlendingFactorDest);
+                GL.BlendFunc((BlendingFactor)mat.BlendingFactorSrc, (BlendingFactor)mat.BlendingFactorDest);
                 GL.BlendColor(1.0f, 1.0f, 1.0f, mat.BlendColorA);
                 if (mat.AlphaTestEnable) GL.Enable(EnableCap.AlphaTest);
                 else GL.Disable(EnableCap.AlphaTest);
@@ -511,7 +511,7 @@ namespace N3DSCmbViewer.Cmb
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
                     GL.Enable(EnableCap.Blend);
-                    GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                    GL.BlendFunc((BlendingFactor)BlendingFactorSrc.SrcAlpha, (BlendingFactor)BlendingFactorDest.OneMinusSrcAlpha);
 
                     SepdChunk sepd = Root.SklmChunk.ShpChunk.SepdChunks[mesh.SepdID];
                     GL.Uniform1(vertexScaleLocationOverlay, sepd.VertexArrayScale);
@@ -538,7 +538,7 @@ namespace N3DSCmbViewer.Cmb
 
             /* Reset stuff */
             GL.Disable(EnableCap.AlphaTest);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc((BlendingFactor)BlendingFactorSrc.SrcAlpha, (BlendingFactor)BlendingFactorDest.OneMinusSrcAlpha);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
@@ -556,14 +556,14 @@ namespace N3DSCmbViewer.Cmb
                 GL.UseProgram(0);
                 GL.Color4(Color4.Red);
                 GL.Begin(PrimitiveType.Points);
-                foreach (SklChunk.Bone bone in Root.SklChunk.Bones) GL.Vertex3(Vector3.Transform(Vector3.One, bone.GetMatrix(true)));
+                foreach (SklChunk.Bone bone in Root.SklChunk.Bones) GL.Vertex4(Vector4.Transform(Vector4.One, bone.GetMatrix(true)));
                 GL.End();
                 GL.Color4(Color4.Blue);
                 GL.Begin(PrimitiveType.Lines);
                 foreach (SklChunk.Bone bone in Root.SklChunk.Bones.Where(x => x.ParentBone != null))
                 {
-                    GL.Vertex3(Vector3.Transform(Vector3.One, bone.GetMatrix(true)));
-                    GL.Vertex3(Vector3.Transform(Vector3.One, bone.ParentBone.GetMatrix(true)));
+                    GL.Vertex4(Vector4.Transform(Vector4.One, bone.GetMatrix(true)));
+                    GL.Vertex4(Vector4.Transform(Vector4.One, bone.ParentBone.GetMatrix(true)));
                 }
                 GL.End();
                 GL.PopAttrib();

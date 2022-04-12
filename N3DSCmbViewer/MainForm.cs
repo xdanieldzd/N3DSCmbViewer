@@ -123,7 +123,7 @@ namespace N3DSCmbViewer
 
             GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc((BlendingFactor)BlendingFactorSrc.SrcAlpha, (BlendingFactor)BlendingFactorDest.OneMinusSrcAlpha);
 
             //whatever
             /*MessageBox.Show(

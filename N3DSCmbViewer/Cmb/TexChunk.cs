@@ -179,7 +179,7 @@ namespace N3DSCmbViewer.Cmb
                 TexImage = new Bitmap(Width, Height);
 
                 byte[] textureData = new byte[DataLength];
-                Buffer.BlockCopy(originalTexData, (int)DataOffset, textureData, 0, textureData.Length);
+                System.Buffer.BlockCopy(originalTexData, (int)DataOffset, textureData, 0, textureData.Length);
 
                 if (!Enum.IsDefined(typeof(Formats), Format) || !bytesPerPixel.ContainsKey(Format))
                 {
@@ -197,7 +197,7 @@ namespace N3DSCmbViewer.Cmb
                     {
                         /* Get compressed data & handle to it */
                         ushort[] input = new ushort[textureData.Length / sizeof(ushort)];
-                        Buffer.BlockCopy(textureData, 0, input, 0, textureData.Length);
+                        System.Buffer.BlockCopy(textureData, 0, input, 0, textureData.Length);
                         GCHandle pInput = GCHandle.Alloc(input, GCHandleType.Pinned);
 
                         /* Marshal data around, invoke ETC1Lib.dll for conversion, etc */
@@ -217,7 +217,7 @@ namespace N3DSCmbViewer.Cmb
                         if (marshalWidth == marshalHeight)
                         {
                             /* Perfect square, just copy over */
-                            Buffer.BlockCopy(output, 0, finalized, 0, finalized.Length);
+                            System.Buffer.BlockCopy(output, 0, finalized, 0, finalized.Length);
                         }
                         else if (marshalWidth > marshalHeight)
                         {
@@ -236,7 +236,7 @@ namespace N3DSCmbViewer.Cmb
                                     {
                                         source = (y * rowNumBytes) + (b * blockNumBytes) + (y2 * lineNumBytes);
                                         target = (y * rowNumBytes) + (y2 * lineNumBytes * numBlocks) + (b * lineNumBytes);
-                                        Buffer.BlockCopy(output, source, finalized, target, lineNumBytes);
+                                        System.Buffer.BlockCopy(output, source, finalized, target, lineNumBytes);
                                     }
                                 }
                             }
@@ -254,7 +254,7 @@ namespace N3DSCmbViewer.Cmb
                                 {
                                     for (int i = 0; i < factor; i++)
                                     {
-                                        Buffer.BlockCopy(output, readOffset, finalized, writeOffset + (lineSize * 8 * i) + (t * lineSize), lineSize);
+                                        System.Buffer.BlockCopy(output, readOffset, finalized, writeOffset + (lineSize * 8 * i) + (t * lineSize), lineSize);
                                         readOffset += lineSize;
                                     }
                                 }
@@ -267,7 +267,7 @@ namespace N3DSCmbViewer.Cmb
                         byte[] pixelData = new byte[bmpData.Height * bmpData.Stride];
                         Marshal.Copy(bmpData.Scan0, pixelData, 0, pixelData.Length);
 
-                        Buffer.BlockCopy(finalized, 0, pixelData, 0, pixelData.Length);
+                        System.Buffer.BlockCopy(finalized, 0, pixelData, 0, pixelData.Length);
                         for (int i = 0; i < pixelData.Length; i += 4)
                         {
                             byte tmp = pixelData[i];
@@ -399,7 +399,7 @@ namespace N3DSCmbViewer.Cmb
                 if (tileSize == 0)
                 {
                     byte[] bytes = new byte[bytesPerPixel[format]];
-                    Buffer.BlockCopy(reader.ReadBytes(bytes.Length), 0, bytes, 0, bytes.Length);
+                    System.Buffer.BlockCopy(reader.ReadBytes(bytes.Length), 0, bytes, 0, bytes.Length);
 
                     int alpha, red, green, blue;
                     DecodeColor(bytes, format, out alpha, out red, out green, out blue);
