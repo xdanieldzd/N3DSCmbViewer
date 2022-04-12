@@ -457,6 +457,7 @@ namespace N3DSCmbViewer
                 "* Various additional research by Twili" + Environment.NewLine +
                 "* COLLADA exporter written with a lot of help from Peardian" + Environment.NewLine +
                 "* LZSS decompression code adapted from C++ code by ShimmerFairy (https://github.com/lue/MM3D/)" + Environment.NewLine +
+                "* Additional modifications by NishaWolfe (https://nishawolfe.com)" + Environment.NewLine +
                  Environment.NewLine +
                 "* Greetings to TCRF and #zelda on BadnikNET";
 
@@ -549,7 +550,7 @@ namespace N3DSCmbViewer
                     TreeNode actorsNode = new TreeNode("Room Actors") { Tag = setup };
                     for (int j = 0; j < setup.Actors.Count; j++)
                     {
-                        actorsNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4})", j, setup.Actors[j].Number)) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
+                        actorsNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4}) Pos({2},{3},{4}) Rot({5},{6},{7}) Var({8})", j, setup.Actors[j].Number, setup.Actors[j].PositionX, setup.Actors[j].PositionY, setup.Actors[j].PositionZ, setup.Actors[j].RotationX, setup.Actors[j].RotationY, setup.Actors[j].RotationZ, setup.Actors[j].Variable)) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
                     }
                     setupNode.Nodes.Add(actorsNode);
                 }

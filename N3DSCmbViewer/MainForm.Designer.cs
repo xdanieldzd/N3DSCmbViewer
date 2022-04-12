@@ -272,7 +272,7 @@
             this.treeViewEx1.HideSelection = false;
             this.treeViewEx1.Location = new System.Drawing.Point(0, 24);
             this.treeViewEx1.Name = "treeViewEx1";
-            this.treeViewEx1.Size = new System.Drawing.Size(250, 480);
+            this.treeViewEx1.Size = new System.Drawing.Size(350, 480);
             this.treeViewEx1.TabIndex = 2;
             this.treeViewEx1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewEx1_AfterSelect);
             this.treeViewEx1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewEx1_NodeMouseClick);
