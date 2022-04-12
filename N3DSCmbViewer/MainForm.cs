@@ -550,7 +550,19 @@ namespace N3DSCmbViewer
                     TreeNode actorsNode = new TreeNode("Room Actors") { Tag = setup };
                     for (int j = 0; j < setup.Actors.Count; j++)
                     {
-                        actorsNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4}), Pos({3},{4},{5}) Rot({6},{7},{8}) Var({9})", j, setup.Actors[j].Number, setup.Actors[j].Number & 0x0FFF, setup.Actors[j].PositionX, setup.Actors[j].PositionY, setup.Actors[j].PositionZ, setup.Actors[j].RotationX, setup.Actors[j].RotationY, setup.Actors[j].RotationZ, setup.Actors[j].Variable)) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
+                        //These numbers are adjusted to match the collada export.
+                        actorsNode.Nodes.Add(new TreeNode(string.Format("Actor #{0} (0x{1:X4}), Pos({3},{4},{5}) Rot({6},{7},{8}) Var({9})",
+                            j,
+                            setup.Actors[j].Number,
+                            setup.Actors[j].Number & 0x0FFF,
+                            (float)setup.Actors[j].PositionX / 100f,
+                            -(float)setup.Actors[j].PositionZ / 100f,
+                            (float)setup.Actors[j].PositionY / 100f,
+                            (float)setup.Actors[j].RotationX / 100f,
+                            (float)setup.Actors[j].RotationZ / 100f,
+                            (float)setup.Actors[j].RotationY,
+                            setup.Actors[j].Variable
+                            )) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
                     }
                     setupNode.Nodes.Add(actorsNode);
                 }
@@ -660,16 +672,17 @@ namespace N3DSCmbViewer
                             {
                                 log.WriteLine(
 
+                                    //These numbers are adjusted to match the collada export.
                                     string.Format("Actor #{0}\n Hex ID: 0x{1:X4}\n Shortened Hex ID: 0x{2:X4}\n Literal ID: {2}\n Position:\n   x: {3}\n   y: {4}\n   z: {5}\n Rotation:\n   x: {6}\n   y: {7}\n   z: {8}\n Actor Variable: {9}\n\n",
                                     j,
                                     setup.Actors[j].Number,
                                     setup.Actors[j].Number & 0x0FFF,
-                                    setup.Actors[j].PositionX,
-                                    setup.Actors[j].PositionY,
-                                    setup.Actors[j].PositionZ,
-                                    setup.Actors[j].RotationX,
-                                    setup.Actors[j].RotationY,
-                                    setup.Actors[j].RotationZ,
+                                    (float)setup.Actors[j].PositionX / 100f,
+                                    -(float)setup.Actors[j].PositionZ / 100f,
+                                    (float)setup.Actors[j].PositionY / 100f,
+                                    (float)setup.Actors[j].RotationX / 100f,
+                                    (float)setup.Actors[j].RotationZ / 100f,
+                                    (float)setup.Actors[j].RotationY / 100f,
                                     setup.Actors[j].Variable)
 
                                 );
