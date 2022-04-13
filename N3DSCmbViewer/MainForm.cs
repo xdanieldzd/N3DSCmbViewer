@@ -560,7 +560,7 @@ namespace N3DSCmbViewer
                             (float)setup.Actors[j].PositionY / 100f,
                             (float)setup.Actors[j].RotationX / 100f,
                             (float)setup.Actors[j].RotationZ / 100f,
-                            (float)setup.Actors[j].RotationY,
+                            (float)setup.Actors[j].RotationY / 100f,
                             setup.Actors[j].Variable
                             )) { Tag = setup.Actors[j], ImageKey = "default", SelectedImageKey = "default" });
                     }
